@@ -31,7 +31,8 @@ function DownloadAction({ invoice }: { invoice: any }) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${invoice.invoiceNumber}_${pdfData.customerName}.pdf`;
+      const formattedInvNum = `INV-${String(invoice.invoiceNumber).padStart(4, "0")}`;
+      link.download = `${formattedInvNum}_${pdfData.customerName}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
     } catch(err) {
@@ -318,7 +319,7 @@ export function InvoiceTable({ currentUserRole }: { currentUserRole: string }) {
                 return (
                   <tr key={inv.id} className={`border-b hover:opacity-90 ${style.row}`}>
                     <td className="px-4 py-3">{(page - 1) * limit + index + 1}</td>
-                    <td className="px-4 py-3 font-medium text-brand-navy">{inv.invoiceNumber}</td>
+                    <td className="px-4 py-3 font-medium text-brand-navy">INV-{String(inv.invoiceNumber).padStart(4, "0")}</td>
                     <td className="px-4 py-3">{inv.customerName}</td>
                     <td className="px-4 py-3 max-w-[200px] truncate" title={inv.description}>{inv.description}</td>
                     <td className="px-4 py-3">{inv.quantity}</td>

@@ -108,7 +108,8 @@ export function InvoiceForm({ initialData, invoiceId }: {
     setMounted(true);
   }, []);
 
-  const invoiceNumber = initialData?.invoiceNumber || nextNumberData?.nextNumber || "Loading...";
+  const invoiceNumberRaw = initialData?.invoiceNumber;
+  const invoiceNumber = invoiceNumberRaw ? (typeof invoiceNumberRaw === "string" ? invoiceNumberRaw : `INV-${String(invoiceNumberRaw).padStart(4, "0")}`) : nextNumberData?.nextNumber || "Loading...";
 
   // PDF Preview Data Object
   const currentFormData = useWatch({ control });

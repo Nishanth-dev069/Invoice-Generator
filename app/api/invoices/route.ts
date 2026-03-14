@@ -92,25 +92,10 @@ export async function POST(req: Request) {
       balance = totalAmount - advanceAmount;
     }
 
-    // Auto generate invoice number synchronously in transaction safely
+    // Auto generate invoice number synchronously via Postgres autoincrement
     const result = await prisma.$transaction(async (tx) => {
-      const latestInvoice = await (tx as any).invoice.findFirst({
-        orderBy: { createdAt: "desc" },
-        select: { invoiceNumber: true },
-      });
-
-      let nextNumber = "INV-0001";
-      if (latestInvoice?.invoiceNumber) {
-        const match = latestInvoice.invoiceNumber.match(/INV-(\d+)/);
-        if (match && match[1]) {
-          const currentNum = parseInt(match[1], 10);
-          nextNumber = `INV-${(currentNum + 1).toString().padStart(4, "0")}`;
-        }
-      }
-
       const invoice = await (tx as any).invoice.create({
         data: {
-          invoiceNumber: nextNumber,
           customerName: data.customerName,
           phone: data.phone,
           brideName: data.brideName || "",
@@ -140,21 +125,25 @@ export async function POST(req: Request) {
           assigneeId: data.assigneeId,
           createdById: user.id,
           status: "ACTIVE",
-          // Auto create WIPCard
-          wipCard: {
-            create: {
-              invoiceNumber: nextNumber,
-              description: data.description,
-              quantity,
-              customerName: data.customerName,
-              phase: "RAW_MATERIALS",
-              order: 0,
-            },
-          },
         },
       });
 
-      return invoice;
+      const formattedNumber = `INV-${String(invoice.invoiceNumber).padStart(4, "0")}`;
+
+      // Auto create WIPCard
+      await (tx as any).wIPCard.create({
+        data: {
+          invoiceId: invoice.id,
+          invoiceNumber: formattedNumber,
+          description: data.description,
+          quantity,
+          customerName: data.customerName,
+          phase: "RAW_MATERIALS",
+          order: 0,
+        },
+      });
+
+      return { ...invoice, invoiceNumberFormatted: formattedNumber };
     });
 
     return NextResponse.json(result);

@@ -12,16 +12,9 @@ export async function GET() {
       select: { invoiceNumber: true },
     });
 
-    let nextNumber = "INV-0001";
-
-    if (latestInvoice?.invoiceNumber) {
-      const match = latestInvoice.invoiceNumber.match(/INV-(\d+)/);
-      if (match && match[1]) {
-        const currentNum = parseInt(match[1], 10);
-        const nextNum = currentNum + 1;
-        nextNumber = `INV-${nextNum.toString().padStart(4, "0")}`;
-      }
-    }
+    const currentNum = latestInvoice?.invoiceNumber || 0;
+    const nextNum = currentNum + 1;
+    const nextNumber = `INV-${nextNum.toString().padStart(4, "0")}`;
 
     return NextResponse.json({ nextNumber });
   } catch (error: unknown) {

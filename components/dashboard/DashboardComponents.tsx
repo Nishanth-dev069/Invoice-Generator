@@ -70,7 +70,7 @@ export function UrgentDeliveriesPanel({ deliveries }: { deliveries: any[] }) {
           {deliveries.map((inv: any) => (
             <tr key={inv.id} className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => window.location.href = `/invoices/${inv.id}/edit`}>
               <td className="py-3 pr-4">
-                <span className="font-bold text-brand-navy">{inv.invoiceNumber}</span>
+                <span className="font-bold text-brand-navy">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
               </td>
               <td className="py-3 pr-4 font-medium text-slate-700">{inv.customerName}</td>
               <td className={`py-3 pr-4 ${getPriorityTextClass(inv.finalDeliveryDate)}`}>
@@ -156,7 +156,7 @@ export function RecentInvoicesTable({ invoices }: { invoices: any[] }) {
           {invoices.map((inv: any) => (
             <tr key={inv.id} className="hover:bg-slate-50 transition-colors border-b last:border-0">
               <td className="py-3 pr-4">
-                <span className="font-bold text-brand-navy text-xs font-mono">{inv.invoiceNumber}</span>
+                <span className="font-bold text-brand-navy text-xs font-mono">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
               </td>
               <td className="py-3 pr-4 font-medium text-slate-700 max-w-[140px] truncate">{inv.customerName}</td>
               <td className="py-3 pr-4 font-semibold text-slate-800">₹{parseFloat(inv.totalAmount).toLocaleString("en-IN")}</td>
