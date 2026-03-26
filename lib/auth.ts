@@ -11,6 +11,7 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -19,21 +20,26 @@ export const {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-        
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        try {
+          if (!credentials?.email || !credentials?.password) return null;
+          
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+          });
 
-        if (user && await compare(credentials.password as string, user.password)) {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          };
+          if (user && user.password && await compare(credentials.password as string, user.password)) {
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error("Authentication Error:", error);
+          throw error;
         }
-        return null;
       },
     }),
   ],

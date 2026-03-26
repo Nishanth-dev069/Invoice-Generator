@@ -9,7 +9,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const body = await req.json();
     const { phase, order } = body;
 
-    const updated = await (prisma as any).wipCard.update({
+    const updated = await (prisma as any).wIPCard.update({
       where: { id: params.id },
       data: {
         phase,
@@ -28,7 +28,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   try {
     await requireAuth("ADMIN");
 
-    const deleted = await (prisma as any).wipCard.update({
+    const deleted = await (prisma as any).wIPCard.update({
       where: { id: params.id },
       data: { deletedAt: new Date() },
     });

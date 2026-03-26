@@ -95,7 +95,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
       toast.success(invoiceId ? "Invoice updated successfully" : "Invoice generated successfully");
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       if (!invoiceId) {
-        router.push("/invoices");
+        router.push("/dashboard/invoices");
         router.refresh();
       }
     },

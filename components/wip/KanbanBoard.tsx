@@ -97,6 +97,11 @@ export function KanbanBoard({
     setActiveCard(activeItem || null);
   };
 
+  const findContainer = (id: string, items: Record<string, any[]>) => {
+    if (id in items) return id;
+    return Object.keys(items).find((key) => items[key].some((item) => item.id === id));
+  };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -104,46 +109,43 @@ export function KanbanBoard({
     const activeId = active.id;
     const overId = over.id;
 
-    // Find containers
-    const activeContainer = active.data.current?.sortable?.containerId;
-    const overContainer = over.data.current?.sortable?.containerId || over.id;
-    
-    // If dropping on empty column, overContainer is the column id
-    if (!activeContainer || !overContainer) return;
+    setColumns((prev) => {
+      const activeContainer = findContainer(activeId as string, prev);
+      const overContainer = findContainer(overId as string, prev);
 
-    if (activeContainer !== overContainer) {
-      setColumns((prev) => {
-        const activeItems = [...prev[activeContainer]];
-        const overItems = [...prev[overContainer]];
+      if (!activeContainer || !overContainer || activeContainer === overContainer) {
+        return prev;
+      }
 
-        const activeIndex = activeItems.findIndex(t => t.id === activeId);
-        const overIndex = overItems.findIndex(t => t.id === overId);
+      const activeItems = [...prev[activeContainer]];
+      const overItems = [...prev[overContainer]];
 
-        let newIndex;
-        if (overId in prev) {
-          // Dropping on empty column
-          newIndex = overItems.length + 1;
-        } else {
-          const isBelowOverItem =
-            over &&
-            active.rect.current.translated &&
-            active.rect.current.translated.top > over.rect.top + over.rect.height;
+      const activeIndex = activeItems.findIndex(t => t.id === activeId);
+      const overIndex = overItems.findIndex(t => t.id === overId);
 
-          const modifier = isBelowOverItem ? 1 : 0;
-          newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-        }
+      let newIndex;
+      if (overId in prev) {
+        newIndex = overItems.length + 1;
+      } else {
+        const isBelowOverItem =
+          over &&
+          active.rect.current.translated &&
+          active.rect.current.translated.top > over.rect.top + over.rect.height;
 
-        const [item] = activeItems.splice(activeIndex, 1);
-        item.phase = overContainer; // update local phase
-        overItems.splice(newIndex, 0, item);
+        const modifier = isBelowOverItem ? 1 : 0;
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
 
-        return {
-          ...prev,
-          [activeContainer]: activeItems,
-          [overContainer]: overItems,
-        };
-      });
-    }
+      const [item] = activeItems.splice(activeIndex, 1);
+      item.phase = overContainer; // update local phase
+      overItems.splice(newIndex, 0, item);
+
+      return {
+        ...prev,
+        [activeContainer]: activeItems,
+        [overContainer]: overItems,
+      };
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -156,8 +158,8 @@ export function KanbanBoard({
     const activeId = active.id;
     const overId = over.id;
 
-    const activeContainer = active.data.current?.sortable?.containerId || Object.keys(columns).find(key => columns[key].some(item => item.id === activeId));
-    const overContainer = over.data.current?.sortable?.containerId || over.id;
+    const activeContainer = findContainer(activeId as string, columns);
+    const overContainer = findContainer(overId as string, columns);
 
     if (activeContainer && overContainer && activeContainer === overContainer) {
       const activeIndex = columns[activeContainer].findIndex(t => t.id === activeId);

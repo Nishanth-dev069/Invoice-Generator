@@ -13,7 +13,7 @@ const createUserSchema = z.object({
 
 export async function GET() {
   try {
-    await requireAuth("ADMIN");
+    await requireAuth();
 
     const users = await prisma.user.findMany({
       select: {

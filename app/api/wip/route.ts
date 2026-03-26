@@ -8,7 +8,7 @@ export async function GET() {
     await requireAuth();
     
     // Fetch all active WIPCards and group them by phase
-    const rawWipCards = await (prisma as any).wipCard.findMany({
+    const rawWipCards = await (prisma as any).wIPCard.findMany({
       where: { deletedAt: null },
       orderBy: { order: "asc" },
       include: {
