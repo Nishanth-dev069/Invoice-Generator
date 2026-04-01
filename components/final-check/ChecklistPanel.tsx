@@ -12,81 +12,81 @@ const SECTIONS = [
     id: "A",
     title: "Pre-Production Verification",
     items: [
-      { key: "billNumberVerified", label: "Bill Number Verified" },
-      { key: "modelNumberVerified", label: "Model Number Verified" },
-      { key: "descriptionVerified", label: "Description Verified" },
-      { key: "quantityVerified", label: "Quantity Verified" },
-      { key: "printerVerified", label: "Printer Assigned" },
-      { key: "dtpVerified", label: "DTP Assigned" },
-      { key: "colourExplainedToCustomer", label: "Colour Explained to Customer" },
-      { key: "leadTimeExplainedToCustomer", label: "Lead Time Explained to Customer" },
-      { key: "wastageRemarksAdjusted", label: "Wastage/Remarks/Cards Adjusted" },
-      { key: "dtpAssignedAndStarted", label: "DTP Assigned & Started" },
+      { key: "rm_billNumberVerified", label: "Bill Number Verified" },
+      { key: "rm_modelNumberVerified", label: "Model Number Verified" },
+      { key: "rm_descriptionVerified", label: "Description Verified" },
+      { key: "rm_quantityVerified", label: "Quantity Verified" },
+      { key: "rm_printerAssigned", label: "Printer Assigned" },
+      { key: "rm_dtpAssigned", label: "DTP Assigned" },
+      { key: "rm_colourExplainedToCustomer", label: "Colour Explained to Customer" },
+      { key: "rm_leadTimeExplained", label: "Lead Time Explained to Customer" },
+      { key: "rm_wastageRemarksAdjusted", label: "Wastage/Remarks/Cards Adjusted" },
+      { key: "rm_dtpAssignedAndStarted", label: "DTP Assigned & Started" },
     ]
   },
   {
     id: "B",
     title: "DTP & Material",
     items: [
-      { key: "materialCardsReceived", label: "Material/Cards Received" },
-      { key: "dtpConfirmed", label: "DTP Confirmed" },
-      { key: "cardsStockUpdated", label: "Cards Stock Updated" },
-      { key: "currentStockChecked", label: "Current Stock of the Card Checked" },
-      { key: "stickersQualityCheckedPacked", label: "Stickers Quality Checked & Packed" },
-      { key: "stickerQualityUpdated", label: "Sticker Quality Updated" },
-      { key: "logoCheckedOnDtp", label: "Logo Checked on DTP" },
-      { key: "printerScheduleInformed", label: "Printer Informed about Schedule & Estimates" },
-      { key: "dtpSentToCustomer", label: "DTP Sent to Customer, Awaiting Confirmation" },
+      { key: "d_materialCardsReceived", label: "Material/Cards Received" },
+      { key: "d_dtpConfirmed", label: "DTP Confirmed" },
+      { key: "d_cardsStockUpdated", label: "Cards Stock Updated" },
+      { key: "d_currentStockChecked", label: "Current Stock of the Card Checked" },
+      { key: "d_stickersQualityChecked", label: "Stickers Quality Checked & Packed" },
+      { key: "d_stickerQualityUpdated", label: "Sticker Quality Updated" },
+      { key: "d_logoCheckedOnDtp", label: "Logo Checked on DTP" },
+      { key: "d_printerScheduleInformed", label: "Printer Informed about Schedule & Estimates" },
+      { key: "d_dtpSentToCustomer", label: "DTP Sent to Customer, Awaiting Confirmation" },
     ]
   },
   {
     id: "C",
     title: "Name Plates & Customer Approval",
     items: [
-      { key: "namePlatesReceived1", label: "Name Plates Received (1st check)" },
-      { key: "namePlatesQualityChecked", label: "Name Plates Quality Checked" },
-      { key: "dtpConfirmedByCustomer", label: "DTP Confirmed by Customer" },
-      { key: "namePlatesReceivedFinal", label: "Name Plates Received (Final)" },
-      { key: "signaturesFromCustomer", label: "Signatures Taken from Customer" },
-      { key: "leadTimeUpdatedToCustomer", label: "Updated Lead Time Communicated to Customer" },
-      { key: "leftRightExplained", label: "Left & Right Explained to Customer" },
+      { key: "p_namePlatesReceived1", label: "Name Plates Received (1st check)" },
+      { key: "p_namePlatesQualityChecked", label: "Name Plates Quality Checked" },
+      { key: "p_dtpConfirmedByCustomer", label: "DTP Confirmed by Customer" },
+      { key: "p_namePlatesReceivedFinal", label: "Name Plates Received (Final)" },
+      { key: "p_signaturesFromCustomer", label: "Signatures Taken from Customer" },
+      { key: "p_leadTimeUpdated", label: "Updated Lead Time Communicated to Customer" },
+      { key: "p_leftRightExplained", label: "Left & Right Explained to Customer" },
     ]
   },
   {
     id: "D",
     title: "Master & Printing",
     items: [
-      { key: "masterTracingsReady", label: "Master/Tracings Ready" },
-      { key: "samplesCollectedFromDtp", label: "Samples Collected from DTP Centre" },
-      { key: "masterCheckWithPdfCard", label: "Master Check with PDF & Card Done" },
-      { key: "timeColourLanguageWrittenOnCards", label: "Time, Colour, Language, Quantity Written on Cards" },
-      { key: "timeColourLanguageSentInGroup", label: "Time, Colour, Language, Quantity Sent in Group" },
-      { key: "cardOrientationSentToGroup", label: "Card Orientation Picture Sent to Printer Group" },
-      { key: "materialSentToPrinter", label: "Material/Cards Sent to Printer" },
-      { key: "estimatedPrintingDateSet", label: "Estimated Printing Date Confirmed" },
-      { key: "printerFollowUp", label: "Follow-up Done with Printer" },
-      { key: "cardOrientationSentToPrinterGroup", label: "Card Orientation Sent to Printer Group (Confirmation)" },
+      { key: "p_masterTracingsReady", label: "Master/Tracings Ready" },
+      { key: "p_samplesCollectedFromDtp", label: "Samples Collected from DTP Centre" },
+      { key: "p_masterCheckWithPdfCard", label: "Master Check with PDF & Card Done" },
+      { key: "p_timeColourWrittenOnCards", label: "Time, Colour, Language, Quantity Written on Cards" },
+      { key: "p_timeColourSentInGroup", label: "Time, Colour, Language, Quantity Sent in Group" },
+      { key: "p_cardOrientationSentToGroup", label: "Card Orientation Picture Sent to Printer Group" },
+      { key: "p_materialSentToPrinter", label: "Material/Cards Sent to Printer" },
+      { key: "p_estimatedPrintingDateSet", label: "Estimated Printing Date Confirmed" },
+      { key: "p_printerFollowUp", label: "Follow-up Done with Printer" },
+      { key: "p_cardOrientationConfirmed", label: "Card Orientation Sent to Printer Group (Confirmation)" },
     ]
   },
   {
     id: "E",
     title: "Post Printing & Delivery",
     items: [
-      { key: "paddingBoxingScheduleInformed", label: "Padding/Boxing Schedule Informed to Binder" },
-      { key: "printedMaterialReceived", label: "Printed Material Received" },
-      { key: "printedMaterialQualityChecked", label: "Printed Material Quality Checked" },
-      { key: "cardsNamePlatesStickersToBinder", label: "Cards/Name Plates/Stickers Sent to Binder" },
-      { key: "binderFollowUp", label: "Follow-up Done with Binder" },
-      { key: "estimatedTimeToBinder", label: "Estimated Time Communicated to Binder" },
-      { key: "endProductMaterialCheck", label: "End Product/Material Check Done" },
-      { key: "sampleExchangedWithOriginal", label: "Sample Exchanged with Original + Payment Done" },
-      { key: "customerInformedToBringBag", label: "Customer Informed to Bring Their Own Bag" },
-      { key: "customerInformedAboutReadiness", label: "Customer Informed about Readiness" },
-      { key: "paymentCollected", label: "Payment Collected" },
-      { key: "reminderFollowUp", label: "Reminder/Follow-up Done" },
-      { key: "ratingTaken", label: "Rating Taken" },
-      { key: "checkRatingName", label: "Check/Verify Rating Name" },
-      { key: "balanceCollected", label: "Balance Collected" },
+      { key: "pp_paddingBoxingScheduled", label: "Padding/Boxing Schedule Informed to Binder" },
+      { key: "pp_printedMaterialReceived", label: "Printed Material Received" },
+      { key: "pp_printedMaterialQC", label: "Printed Material Quality Checked" },
+      { key: "pp_cardsToBinder", label: "Cards/Name Plates/Stickers Sent to Binder" },
+      { key: "pp_binderFollowUp", label: "Follow-up Done with Binder" },
+      { key: "pp_estimatedTimeToBinder", label: "Estimated Time Communicated to Binder" },
+      { key: "pp_endProductCheck", label: "End Product/Material Check Done" },
+      { key: "pp_sampleExchanged", label: "Sample Exchanged with Original + Payment Done" },
+      { key: "pp_customerInformedBag", label: "Customer Informed to Bring Their Own Bag" },
+      { key: "pp_customerInformedReadiness", label: "Customer Informed about Readiness" },
+      { key: "pp_paymentCollected", label: "Payment Collected" },
+      { key: "pp_reminderFollowUp", label: "Reminder/Follow-up Done" },
+      { key: "pp_ratingTaken", label: "Rating Taken" },
+      { key: "pp_checkRatingName", label: "Check/Verify Rating Name" },
+      { key: "pp_balanceCollected", label: "Balance Collected" },
     ]
   }
 ];
@@ -192,7 +192,7 @@ export function ChecklistPanel({
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden relative">
       {/* Header Readonly Panel */}
-      <div className="bg-brand-navy text-white p-6 shrink-0 shadow-md z-10">
+      <div className="bg-brand-forest text-white p-6 shrink-0 shadow-md z-10">
         <div className="flex justify-between items-start mb-4">
           <div>
             <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-bold font-mono tracking-widest">{instance.invoiceNumber}</span>
@@ -242,7 +242,7 @@ export function ChecklistPanel({
           </div>
           <div className="w-full bg-slate-200 rounded-full h-2.5">
             <div 
-              className={`h-2.5 rounded-full transition-all duration-300 ${isFullyChecked ? 'bg-green-500' : 'bg-brand-orange'}`} 
+              className={`h-2.5 rounded-full transition-all duration-300 ${isFullyChecked ? 'bg-green-500' : 'bg-brand-forest'}`} 
               style={{ width: `${(calculateTotalProgress() / totalItems) * 100}%` }}
             />
           </div>
@@ -267,7 +267,7 @@ export function ChecklistPanel({
             <div key={section.id} className="relative">
               <div className="sticky top-0 bg-white/95 backdrop-blur py-2 z-10 border-b mb-6 flex justify-between items-end">
                 <h3 className="text-lg font-bold text-slate-800">
-                  <span className="text-brand-orange mr-2">Sec {section.id}</span>
+                  <span className="text-brand-forest mr-2">Sec {section.id}</span>
                   {section.title}
                 </h3>
                 <span className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
@@ -286,7 +286,7 @@ export function ChecklistPanel({
                       className={`flex items-start text-left gap-4 p-4 rounded-xl border-2 transition-all ${
                         isChecked
                           ? 'border-green-500 bg-green-50/30 shadow-sm'
-                          : 'border-slate-200 hover:border-brand-orange/50 hover:bg-slate-50'
+                          : 'border-slate-200 hover:border-brand-sage/50 hover:bg-slate-50'
                       } ${instance.isComplete ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className={`mt-0.5 shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${

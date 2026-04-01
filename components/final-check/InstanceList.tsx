@@ -62,7 +62,7 @@ export function InstanceList({
         }`}
       >
         <div className="flex justify-between items-start">
-          <span className="font-bold text-sm text-brand-navy flex items-center gap-1.5">
+          <span className="font-bold text-sm text-brand-forest flex items-center gap-1.5">
             <span className={`w-2.5 h-2.5 rounded-full ${priorityDot}`} />
             {instance.invoiceNumber}
           </span>
@@ -78,7 +78,7 @@ export function InstanceList({
         </div>
         <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
           <div 
-            className={`h-1.5 rounded-full ${instance.isComplete ? 'bg-green-500' : 'bg-brand-orange'}`} 
+            className={`h-1.5 rounded-full ${instance.isComplete ? 'bg-green-500' : 'bg-brand-forest'}`} 
             style={{ width: `${percent}%` }}
           />
         </div>

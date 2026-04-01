@@ -1,17 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// SECURITY CHECKLIST:
+// - [x] Authentication (getServerSession)
+// - [x] Role-Based Access Control (requireRole for DELETE)
+// - [x] UUID Validation (isValidUUID)
+// - [x] SQL Injection protection (Prisma ORM)
+// - [x] Rate Limiting
+// - [x] Unified Error Handler (handleApiError)
+
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth-utils";
+import { auth } from "@/lib/auth";
+import { requireRole } from "@/lib/auth-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { handleApiError } from "@/lib/api-error";
+import { isValidUUID } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
-    await requireAuth();
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    const rateLimitResponse = checkRateLimit(req, session.user.id, 100);
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const { id } = params;
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ success: false, error: 'Invalid ID' }, { status: 400 });
+    }
+
     const body = await req.json();
     
-    // allow partial updates of any fields
+    // allow partial updates of any fields securely via ORM
+    const standardFields: Record<string, any> = {};
+    const checklistFields: Record<string, boolean> = {};
+
+    for (const [key, value] of Object.entries(body)) {
+      if (key.match(/^(rm|d|p|pp|pay)_/)) {
+        checklistFields[key] = value as boolean;
+      } else {
+        standardFields[key] = value;
+      }
+    }
+
     const updated = await (prisma.finalCheck as any).update({
-      where: { id: params.id },
-      data: body,
+      where: { id },
+      data: standardFields,
       include: {
         invoice: {
           select: {
@@ -23,33 +57,95 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       }
     });
 
-    // We can also trigger invoice status = CLOSED if isComplete becomes true
+    if (Object.keys(checklistFields).length > 0) {
+      const wipCard = await (prisma as any).wIPCard.findUnique({
+        where: { invoiceId: updated.invoiceId },
+        include: { checklists: true }
+      });
+      
+      if (wipCard && wipCard.checklists.length > 0) {
+        const prefixToPhase: Record<string, string> = {
+          "rm": "RAW_MATERIALS",
+          "d": "DESIGN",
+          "p": "PRINTING",
+          "pp": "POST_PRINTING",
+          "pay": "PAYMENT_PENDING"
+        };
+        
+        for (const [key, value] of Object.entries(checklistFields)) {
+          const prefixMatch = key.match(/^(rm|d|p|pp|pay)_/);
+          if (prefixMatch) {
+            const phase = prefixToPhase[prefixMatch[1]];
+            const checklist = wipCard.checklists.find((c: any) => c.phase === phase);
+            if (checklist) {
+              await (prisma as any).wIPChecklist.update({
+                where: { id: checklist.id },
+                data: { [key]: value }
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Trigger invoice status = CLOSED and auto-create Purchase record
     if (body.isComplete) {
        await (prisma.invoice as any).update({
          where: { id: updated.invoiceId },
          data: { status: "CLOSED" }
        });
+
+       // Auto-create Purchase record (idempotent - ignores if already exists)
+       try {
+         const invoice = await (prisma as any).invoice.findUnique({ where: { id: updated.invoiceId } });
+         if (invoice) {
+           const existingPurchase = await (prisma as any).purchase.findUnique({ where: { invoiceId: updated.invoiceId } });
+           if (!existingPurchase) {
+             await (prisma as any).purchase.create({
+               data: {
+                 invoiceId: updated.invoiceId,
+                 invoiceNumber: `INV-${String(invoice.invoiceNumber).padStart(4, "0")}`,
+                 customerName: invoice.customerName,
+                 description: invoice.description,
+                 category: invoice.category || "Uncategorized",
+                 quantity: invoice.quantity,
+                 billValue: invoice.totalAmount,
+                 completedAt: new Date(),
+               }
+             });
+           }
+         }
+       } catch (e) {
+         console.error("Purchase auto-create error:", e);
+       }
     }
 
-    return NextResponse.json(updated);
+    return NextResponse.json({ success: true, data: updated });
   } catch (error: unknown) {
-    if (error instanceof NextResponse) return error;
-    return new NextResponse("Internal Error", { status: 500 });
+    return handleApiError(error);
   }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    await requireAuth("ADMIN");
+    const session = await auth();
+    requireRole(session, "ADMIN");
 
-    const deleted = await (prisma.finalCheck as any).update({
-      where: { id: params.id },
+    const rateLimitResponse = checkRateLimit(req, session?.user?.id || null, 100);
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const { id } = params;
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ success: false, error: 'Invalid ID' }, { status: 400 });
+    }
+
+    await (prisma.finalCheck as any).update({
+      where: { id },
       data: { deletedAt: new Date() },
     });
 
-    return NextResponse.json(deleted);
+    return NextResponse.json({ success: true, message: "Deleted successfully" });
   } catch (error: unknown) {
-    if (error instanceof NextResponse) return error;
-    return new NextResponse("Internal Error", { status: 500 });
+    return handleApiError(error);
   }
 }

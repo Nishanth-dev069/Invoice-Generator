@@ -7,7 +7,8 @@ import {
   DragOverlay, 
   closestCenter, 
   KeyboardSensor, 
-  PointerSensor, 
+  PointerSensor,
+  TouchSensor,
   useSensor, 
   useSensors,
   DragStartEvent,
@@ -23,7 +24,7 @@ import { KanbanCard } from "./KanbanCard";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const PHASES = ["RAW_MATERIALS", "DESIGN", "PRINTING", "POST_PRINTING"];
+const PHASES = ["RAW_MATERIALS", "DESIGN", "PRINTING", "POST_PRINTING", "PAYMENT_PENDING"];
 
 export function KanbanBoard({ 
   initialData, 
@@ -40,6 +41,10 @@ export function KanbanBoard({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, {
+      // Press and hold 250ms before drag starts so normal touch scroll still works
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -215,6 +220,26 @@ export function KanbanBoard({
     }
   };
 
+  const markPaymentPending = (id: string, currentPhase: string) => {
+    moveMutation.mutate({ id, phase: "PAYMENT_PENDING", order: 0 });
+    // Optimistically update local state to reflect the transition visually immediately
+    setColumns((prev) => {
+      const activeItems = [...prev[currentPhase]];
+      const itemIndex = activeItems.findIndex((c) => c.id === id);
+      if (itemIndex > -1) {
+        const [item] = activeItems.splice(itemIndex, 1);
+        item.phase = "PAYMENT_PENDING";
+        const newOverItems = [item, ...(prev["PAYMENT_PENDING"] || [])];
+        return {
+          ...prev,
+          [currentPhase]: activeItems,
+          ["PAYMENT_PENDING"]: newOverItems,
+        };
+      }
+      return prev;
+    });
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -232,6 +257,7 @@ export function KanbanBoard({
               isAdmin={isAdmin}
               onDelete={confirmDelete}
               onMarkComplete={confirmMarkComplete}
+              onMarkPaymentPending={(id: string) => markPaymentPending(id, phase)}
             />
           </div>
         ))}
@@ -244,6 +270,7 @@ export function KanbanBoard({
             isAdmin={isAdmin}
             onDelete={() => {}}
             onMarkComplete={() => {}}
+            onMarkPaymentPending={() => {}}
             isOverlay={true}
           />
         ) : null}

@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format, differenceInDays, startOfDay } from "date-fns";
 import { 
   FileText, TrendingUp, Clock, AlertTriangle, 
@@ -46,6 +47,8 @@ const getPriorityTextClass = (dateStr: string | null) => {
 };
 
 export function UrgentDeliveriesPanel({ deliveries }: { deliveries: any[] }) {
+  const router = useRouter();
+
   if (!deliveries?.length) {
     return (
       <div className="flex items-center gap-3 text-green-700 bg-green-50 border border-green-200 rounded-xl p-5 text-sm font-medium">
@@ -68,9 +71,9 @@ export function UrgentDeliveriesPanel({ deliveries }: { deliveries: any[] }) {
         </thead>
         <tbody>
           {deliveries.map((inv: any) => (
-            <tr key={inv.id} className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => window.location.href = `/invoices/${inv.id}/edit`}>
+            <tr key={inv.id} className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => router.push(`/dashboard/invoices/${inv.id}/edit`)}>
               <td className="py-3 pr-4">
-                <span className="font-bold text-brand-navy">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
+                <span className="font-bold text-brand-forest">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
               </td>
               <td className="py-3 pr-4 font-medium text-slate-700">{inv.customerName}</td>
               <td className={`py-3 pr-4 ${getPriorityTextClass(inv.finalDeliveryDate)}`}>
@@ -156,7 +159,7 @@ export function RecentInvoicesTable({ invoices }: { invoices: any[] }) {
           {invoices.map((inv: any) => (
             <tr key={inv.id} className="hover:bg-slate-50 transition-colors border-b last:border-0">
               <td className="py-3 pr-4">
-                <span className="font-bold text-brand-navy text-xs font-mono">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
+                <span className="font-bold text-brand-forest text-xs font-mono">INV-{String(inv.invoiceNumber).padStart(4, "0")}</span>
               </td>
               <td className="py-3 pr-4 font-medium text-slate-700 max-w-[140px] truncate">{inv.customerName}</td>
               <td className="py-3 pr-4 font-semibold text-slate-800">₹{parseFloat(inv.totalAmount).toLocaleString("en-IN")}</td>
@@ -228,7 +231,7 @@ export function FinalCheckStatus({ pending, completedThisMonth }: { pending: num
       </div>
       <Link
         href="/dashboard/final-check"
-        className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand-orange hover:underline"
+        className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand-forest hover:underline"
       >
         Open Final Check <ArrowRight className="w-4 h-4" />
       </Link>

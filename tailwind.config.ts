@@ -15,12 +15,16 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          navy: "#1E3A5F",
-          "navy-light": "#2d5a8e",
-          "navy-dark": "#0f2540",
-          orange: "#F97316",
-          "orange-hover": "#ea6c0b",
-          "orange-light": "#fff3ea",
+          sage: '#717f65',  
+          forest: '#32612d',   
+          cream: '#f2efe6',   
+          white: '#ffffff',   
+          black: '#000000',   
+          border: '#d6d0c4',   
+          muted: '#9a9485',   
+          danger: '#c0392b',   
+          warning: '#d4821a',   
+          success: '#32612d',
         },
         success: "#16A34A",
         warning: "#D97706",
@@ -65,7 +69,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-quicksand)", "sans-serif"],
+        quicksand: ["var(--font-quicksand)", "sans-serif"],
+        quincy: ["var(--font-quincy)", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

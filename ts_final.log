@@ -1,0 +1,3 @@
+app/api/dashboard/team-performance/route.ts(77,31): error TS2802: Type 'MapIterator<[string, number[]]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/api/dashboard/team-performance/route.ts(78,41): error TS7006: Parameter 'a' implicitly has an 'any' type.
+app/api/dashboard/team-performance/route.ts(78,44): error TS7006: Parameter 'b' implicitly has an 'any' type.

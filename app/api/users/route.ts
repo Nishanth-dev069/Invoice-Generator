@@ -1,5 +1,16 @@
+// SECURITY CHECKLIST:
+// - [x] Authentication (NextAuth auth())
+// - [x] Role-Based Access Control (requireRole ADMIN for POST)
+// - [x] Input Validation (Zod safeParse)
+// - [x] SQL Injection protection (Prisma ORM)
+// - [x] Rate Limiting
+// - [x] Unified Error Handler (handleApiError)
+
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth-utils";
+import { auth } from "@/lib/auth";
+import { requireRole } from "@/lib/auth-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { handleApiError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { z } from "zod";
@@ -11,9 +22,14 @@ const createUserSchema = z.object({
   role: z.enum(["ADMIN", "USER"]),
 });
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    await requireAuth();
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    const rateLimitResponse = checkRateLimit(req, session.user.id, 100);
+    if (rateLimitResponse) return rateLimitResponse;
 
     const users = await prisma.user.findMany({
       select: {
@@ -26,26 +42,32 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(users);
+    return NextResponse.json({ success: true, data: users });
   } catch (error: unknown) {
-    if (error instanceof NextResponse) return error;
-    return new NextResponse("Internal Error", { status: 500 });
+    return handleApiError(error);
   }
 }
 
 export async function POST(req: Request) {
   try {
-    await requireAuth("ADMIN");
+    const session = await auth();
+    requireRole(session, "ADMIN");
+    const rateLimitResponse = checkRateLimit(req, session?.user?.id || null, 100);
+    if (rateLimitResponse) return rateLimitResponse;
 
     const body = await req.json();
-    const { name, email, password, role } = createUserSchema.parse(body);
+    const parsed = createUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: parsed.error.flatten() }, { status: 400 });
+    }
+    const { name, email, password, role } = parsed.data;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
-      return new NextResponse("Email already exists", { status: 400 });
+      return NextResponse.json({ success: false, error: 'Email already exists' }, { status: 400 });
     }
 
     const hashedPassword = await hash(password, 12);
@@ -66,12 +88,8 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(user);
+    return NextResponse.json({ success: true, data: user }, { status: 201 });
   } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      return new NextResponse("Invalid data", { status: 422 });
-    }
-    if (error instanceof NextResponse) return error;
-    return new NextResponse("Internal Error", { status: 500 });
+    return handleApiError(error);
   }
 }

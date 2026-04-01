@@ -1,0 +1,24 @@
+app/api/dashboard/team-performance/route.ts(77,31): error TS2802: Type 'MapIterator<[string, number[]]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/api/dashboard/team-performance/route.ts(78,41): error TS7006: Parameter 'a' implicitly has an 'any' type.
+app/api/dashboard/team-performance/route.ts(78,44): error TS7006: Parameter 'b' implicitly has an 'any' type.
+app/dashboard/page.tsx(30,61): error TS2304: Cannot find name 'useQuery'.
+components/dashboard/AchievementBadges.tsx(9,8): error TS2307: Cannot find module '@/components/ui/tooltip' or its corresponding type declarations.
+components/dashboard/AdminAnalytics.tsx(4,10): error TS2305: Module '"@/lib/utils"' has no exported member 'formatCurrency'.
+components/dashboard/AdminAnalytics.tsx(5,75): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+components/dashboard/AdminAnalytics.tsx(6,79): error TS2307: Cannot find module '@/components/ui/table' or its corresponding type declarations.
+components/dashboard/AdminAnalytics.tsx(102,17): error TS2322: Type '(value: number) => any' is not assignable to type 'Formatter<ValueType, NameType> & ((value: ValueType, name: NameType, item: TooltipPayloadEntry, index: number, payload: TooltipPayload) => ReactNode | [...])'.
+  Type '(value: number) => any' is not assignable to type 'Formatter<ValueType, NameType>'.
+    Types of parameters 'value' and 'value' are incompatible.
+      Type 'ValueType | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+components/dashboard/LeaderboardCard.tsx(4,10): error TS2305: Module '"@/lib/utils"' has no exported member 'formatCurrency'.
+components/dashboard/LeaderboardCard.tsx(5,58): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+components/dashboard/PerformanceCharts.tsx(4,10): error TS2305: Module '"@/lib/utils"' has no exported member 'formatCurrency'.
+components/dashboard/PerformanceCharts.tsx(5,75): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+components/dashboard/PerformanceCharts.tsx(12,79): error TS2307: Cannot find module '@/components/ui/select' or its corresponding type declarations.
+components/dashboard/PerformanceCharts.tsx(163,19): error TS2322: Type '(value: number, name: string) => [any, string]' is not assignable to type 'Formatter<ValueType, NameType> & ((value: ValueType, name: NameType, item: TooltipPayloadEntry, index: number, payload: TooltipPayload) => ReactNode | [...])'.
+  Type '(value: number, name: string) => [any, string]' is not assignable to type 'Formatter<ValueType, NameType>'.
+    Types of parameters 'value' and 'value' are incompatible.
+      Type 'ValueType | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+components/dashboard/TeamPerformance.tsx(7,35): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.

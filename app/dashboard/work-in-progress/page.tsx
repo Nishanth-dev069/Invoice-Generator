@@ -14,7 +14,8 @@ export default function WorkInProgressPage() {
     queryFn: async () => {
       const res = await fetch("/api/wip");
       if (!res.ok) throw new Error("Failed to load Kanban board");
-      return res.json();
+      const json = await res.json();
+      return json.success ? json.data : json;
     },
     staleTime: 10000,
   });
@@ -22,7 +23,7 @@ export default function WorkInProgressPage() {
   return (
     <div className="h-[calc(100vh-100px)] flex flex-col space-y-4">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-brand-navy">Work in Progress</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-brand-forest">Work in Progress</h1>
         <p className="text-sm text-slate-500 mt-1">Drag and drop production cards through the pipeline.</p>
       </div>
 
@@ -30,7 +31,7 @@ export default function WorkInProgressPage() {
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-10 rounded-lg border border-slate-200">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-brand-orange animate-spin" />
+              <Loader2 className="w-8 h-8 text-brand-forest animate-spin" />
               <p className="text-sm font-medium text-slate-600">Loading Pipeline...</p>
             </div>
           </div>

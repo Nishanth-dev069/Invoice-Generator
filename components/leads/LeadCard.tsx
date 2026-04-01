@@ -48,7 +48,7 @@ export function LeadCard({
 
       <div className="mt-4 pt-4 border-t flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-brand-navy text-white flex items-center justify-center text-[10px] font-bold" title={lead.assignedTo?.name}>
+          <div className="w-6 h-6 rounded-full bg-brand-forest text-white flex items-center justify-center text-[10px] font-bold" title={lead.assignedTo?.name}>
             {initials}
           </div>
           <div className="flex flex-col">

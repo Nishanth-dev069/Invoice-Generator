@@ -14,6 +14,8 @@ const ROUTE_LABELS: Record<string, string> = {
   "/dashboard/work-in-progress": "Work in Progress",
   "/dashboard/final-check": "Final Check",
   "/dashboard/users": "User Management",
+  "/dashboard/accounts": "Accounts",
+  "/dashboard/purchases": "Purchases",
 };
 
 function getTitle(pathname: string): string {
@@ -68,20 +70,20 @@ export function Header() {
       {/* Left: Title + Breadcrumb */}
       <div className="flex flex-col justify-center">
         {breadcrumbs.length > 1 ? (
-          <nav className="flex items-center gap-1 text-xs text-text-muted">
+          <nav className="flex items-center gap-1 text-xs text-slate-500">
             {breadcrumbs.map((crumb, i) => (
               <span key={crumb.href} className="flex items-center gap-1">
                 {i > 0 && <span className="text-slate-300">/</span>}
                 {i === breadcrumbs.length - 1 ? (
-                  <span className="text-text-primary font-semibold">{crumb.label}</span>
+                  <span className="text-brand-forest font-semibold">{crumb.label}</span>
                 ) : (
-                  <a href={crumb.href} className="hover:text-brand-orange transition-colors">{crumb.label}</a>
+                  <a href={crumb.href} className="hover:text-brand-sage transition-colors">{crumb.label}</a>
                 )}
               </span>
             ))}
           </nav>
         ) : (
-          <h2 className="text-base font-bold text-text-primary">{title}</h2>
+          <h2 className="text-base font-bold text-brand-forest">{title}</h2>
         )}
       </div>
 
@@ -91,7 +93,7 @@ export function Header() {
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors text-sm"
         >
-          <div className="w-7 h-7 rounded-full bg-brand-navy text-white flex items-center justify-center text-xs font-bold">
+          <div className="w-7 h-7 rounded-full bg-brand-forest text-white flex items-center justify-center text-xs font-bold">
             {initials}
           </div>
           <span className="hidden sm:block font-medium text-text-primary max-w-[120px] truncate">{name}</span>
@@ -101,9 +103,9 @@ export function Header() {
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl border border-app-border shadow-lg z-50 py-1 animate-fade-in">
             <div className="px-4 py-3 border-b border-app-border">
-              <div className="font-semibold text-sm text-text-primary">{name}</div>
-              <div className="text-xs text-text-muted mt-0.5 flex items-center gap-1.5">
-                <span className={`inline-block w-2 h-2 rounded-full ${role === "ADMIN" ? "bg-brand-orange" : "bg-green-500"}`} />
+              <div className="font-semibold text-sm text-slate-900">{name}</div>
+              <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+                <span className={`inline-block w-2 h-2 rounded-full ${role === "ADMIN" ? "bg-brand-forest" : "bg-green-500"}`} />
                 {role}
               </div>
             </div>

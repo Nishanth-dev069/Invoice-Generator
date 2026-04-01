@@ -2,7 +2,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { TeamPerformance } from "@/components/dashboard/TeamPerformance";
+import { AdminAnalytics } from "@/components/dashboard/AdminAnalytics";
 import {
   StatCard,
   UrgentDeliveriesPanel,
@@ -24,12 +27,14 @@ import {
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
       const res = await fetch("/api/dashboard/stats");
       if (!res.ok) throw new Error("Failed to load dashboard");
-      return res.json();
+      const json = await res.json();
+      return json.success ? json.data : json;
     },
     staleTime: 60000,
     refetchInterval: 60000,
@@ -40,7 +45,7 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand-navy">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-brand-forest">Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1">Studio operational overview at a glance.</p>
         </div>
         <button
@@ -120,7 +125,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/dashboard/invoices"
-                  className="text-xs font-semibold text-brand-orange hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-forest hover:underline flex items-center gap-1"
                 >
                   All Invoices <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -137,7 +142,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/dashboard/work-in-progress"
-                  className="text-xs font-semibold text-brand-orange hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-forest hover:underline flex items-center gap-1"
                 >
                   Board <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -157,7 +162,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/dashboard/invoices"
-                  className="text-xs font-semibold text-brand-orange hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-forest hover:underline flex items-center gap-1"
                 >
                   View All <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -184,6 +189,9 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          <TeamPerformance />
+          {session?.user?.role === "ADMIN" && <AdminAnalytics />}
         </>
       )}
     </div>

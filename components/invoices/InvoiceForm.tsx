@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { invoiceSchema } from "@/lib/validations";
 import dynamic from "next/dynamic";
+import { CategoryCombobox } from "@/components/ui/category-combobox";
 
 const PDFDownloadButton = dynamic(
   () => import("./PDFDownloadButton"),
@@ -50,6 +51,8 @@ export function InvoiceForm({ initialData, invoiceId }: {
     register,
     handleSubmit,
     control,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(invoiceSchema) as any,
@@ -129,7 +132,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
     <form onSubmit={handleSubmit((d) => mutation.mutate(d as any))} className="space-y-8 pb-12 w-full max-w-5xl mx-auto">
       <div className="flex justify-between items-center pb-4 border-b">
         <div>
-          <h2 className="text-2xl font-bold text-brand-navy">
+          <h2 className="text-2xl font-bold text-brand-forest">
             {invoiceId ? `Edit Invoice: ${invoiceNumber}` : `New Invoice: ${invoiceNumber}`}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Fill in the sections below to complete the invoice.</p>
@@ -142,7 +145,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center justify-center rounded-md bg-brand-orange text-white px-4 py-2 text-sm font-medium hover:bg-brand-orange-hover transition-colors disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-md bg-brand-forest text-white px-4 py-2 text-sm font-medium hover:bg-brand-forest/90 transition-colors disabled:opacity-50"
           >
             {mutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             {invoiceId ? "Update Invoice" : "Generate Invoice"}
@@ -154,25 +157,25 @@ export function InvoiceForm({ initialData, invoiceId }: {
         {/* SECTION 1 */}
         <div className="space-y-6 bg-card p-6 border rounded-lg shadow-sm">
           <div className="border-b pb-2 mb-4">
-            <h3 className="text-lg font-semibold text-brand-orange">Section 1: Customer Details</h3>
+            <h3 className="text-lg font-semibold text-brand-forest">Section 1: Customer Details</h3>
             <p className="text-xs text-muted-foreground">Visible on printed invoice</p>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Date *</label>
-            <input type="date" {...register("date")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+            <input type="date" {...register("date")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
             {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Customer Name *</label>
-              <input {...register("customerName")} placeholder="John Doe" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input {...register("customerName")} placeholder="John Doe" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               {errors.customerName && <p className="text-xs text-destructive">{errors.customerName.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Phone Number *</label>
-              <input type="tel" {...register("phone")} placeholder="+91 9876543210" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input type="tel" {...register("phone")} placeholder="+91 9876543210" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
             </div>
           </div>
@@ -180,22 +183,34 @@ export function InvoiceForm({ initialData, invoiceId }: {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Bride&apos;s Name</label>
-              <input {...register("brideName")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input {...register("brideName")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Groom&apos;s Name</label>
-              <input {...register("groomName")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input {...register("groomName")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Model Number</label>
-            <input {...register("modelNumber")} placeholder="e.g. CARD-WC-500" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+            <input {...register("modelNumber")} placeholder="e.g. CARD-WC-500" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Category *</label>
+            <CategoryCombobox 
+              value={useWatch({ control, name: "category" }) || ""} 
+              onChange={(val) => {
+                 setValue("category", val, { shouldValidate: true, shouldDirty: true });
+              }}
+              error={!!errors.category}
+            />
+            {errors.category && <p className="text-xs text-brand-danger">{errors.category.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Description *</label>
-            <textarea {...register("description")} rows={3} placeholder="Describe the print order..." className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange resize-none" />
+            <textarea {...register("description")} rows={3} placeholder="Describe the print order..." className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage resize-none" />
             {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
           </div>
         </div>
@@ -203,20 +218,20 @@ export function InvoiceForm({ initialData, invoiceId }: {
         {/* SECTION 2 */}
         <div className="space-y-6 bg-card p-6 border rounded-lg shadow-sm">
           <div className="border-b pb-2 mb-4">
-            <h3 className="text-lg font-semibold text-brand-orange">Section 2: Order Details</h3>
+            <h3 className="text-lg font-semibold text-brand-forest">Section 2: Order Details</h3>
             <p className="text-xs text-muted-foreground">Visible on printed invoice</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Quantity *</label>
-              <input type="number" min="1" {...register("quantity")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input type="number" min="1" {...register("quantity")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               <p className="text-xs text-muted-foreground">Effective quantity after 5% tolerance: <span className="font-bold">{toleranceQty}</span> cards</p>
               {errors.quantity && <p className="text-xs text-destructive">{errors.quantity.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Unit Rate (₹) *</label>
-              <input type="number" step="0.01" min="0" {...register("unitRate")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+              <input type="number" step="0.01" min="0" {...register("unitRate")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               {errors.unitRate && <p className="text-xs text-destructive">{errors.unitRate.message}</p>}
             </div>
           </div>
@@ -229,7 +244,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <label className="text-sm font-bold flex items-center gap-2">
-                <input type="checkbox" {...register("advancePaid")} className="h-4 w-4 rounded border-gray-300 text-brand-orange focus:ring-brand-orange" />
+                <input type="checkbox" {...register("advancePaid")} className="h-4 w-4 rounded border-gray-300 text-brand-forest focus:ring-brand-sage" />
                 Advance Paid?
               </label>
             </div>
@@ -238,11 +253,11 @@ export function InvoiceForm({ initialData, invoiceId }: {
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Advance Amount (₹)</label>
-                  <input type="number" step="0.01" {...register("advanceAmount")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                  <input type="number" step="0.01" {...register("advanceAmount")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Advance Mode</label>
-                  <select {...register("advanceMode")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange">
+                  <select {...register("advanceMode")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage">
                      <option value="">Select Mode</option>
                      <option value="ONLINE">Online</option>
                      <option value="CASH">Cash</option>
@@ -256,7 +271,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
               {!advPaid ? (
                 <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Unpaid</span>
               ) : (
-                <span className="font-bold text-brand-orange flex items-center gap-2">
+                <span className="font-bold text-brand-forest flex items-center gap-2">
                   ₹{balance.toFixed(2)}
                   {balance === 0 && <span className="text-green-600 text-xs">(Paid)</span>}
                 </span>
@@ -266,7 +281,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
             {advPaid && balance > 0 && (
               <div className="space-y-2">
                 <label className="text-xs font-medium">Balance Payment Mode</label>
-                <select {...register("balanceMode")} className="flex h-8 w-full rounded-md border border-input bg-background px-3 text-xs focus:ring-1 focus:ring-brand-orange">
+                <select {...register("balanceMode")} className="flex h-8 w-full rounded-md border border-input bg-background px-3 text-xs focus:ring-1 focus:ring-brand-sage">
                   <option value="">Pending</option>
                   <option value="ONLINE">Online</option>
                   <option value="CASH">Cash</option>
@@ -278,17 +293,17 @@ export function InvoiceForm({ initialData, invoiceId }: {
           <div className="grid grid-cols-2 gap-4">
              <div className="space-y-2">
                <label className="text-sm font-medium">Est. Setup/Design Time</label>
-               <input {...register("estimatedDesignTime")} placeholder="e.g. 2 Days" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+               <input {...register("estimatedDesignTime")} placeholder="e.g. 2 Days" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
              </div>
              <div className="space-y-2">
                <label className="text-sm font-medium">Est. Print Time</label>
-               <input {...register("estimatedPrintTime")} placeholder="e.g. 3 Days after proof" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+               <input {...register("estimatedPrintTime")} placeholder="e.g. 3 Days after proof" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
              </div>
           </div>
 
           <div className="space-y-2">
              <label className="text-sm font-medium">Packing Type</label>
-             <select {...register("packing")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange">
+             <select {...register("packing")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage">
                 <option value="WITH_PACKING">With Packing</option>
                 <option value="WITHOUT_PACKING">Without Packing</option>
              </select>
@@ -306,7 +321,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Assignee *</label>
-                <select {...register("assigneeId")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange">
+                <select {...register("assigneeId")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage">
                    <option value="">Select Assignee</option>
                    {users?.map((u: { id: string, name: string, role: string }) => (
                      <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
@@ -317,38 +332,38 @@ export function InvoiceForm({ initialData, invoiceId }: {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Printing Color</label>
-                <input {...register("printingColor")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                <input {...register("printingColor")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               </div>
             </div>
 
             <div className="space-y-4 border-l border-slate-200 pl-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Designer</label>
-                <input {...register("designer")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                <input {...register("designer")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Printer Assigned</label>
-                <input {...register("printer")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                <input {...register("printer")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               </div>
             </div>
 
             <div className="space-y-4 border-l border-slate-200 pl-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Final Delivery Date *</label>
-                <input type="date" {...register("finalDeliveryDate")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                <input type="date" {...register("finalDeliveryDate")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
                 {errors.finalDeliveryDate && <p className="text-xs text-destructive">{errors.finalDeliveryDate.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Content Confirmed On</label>
-                <input type="date" {...register("contentConfirmedOn")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange" />
+                <input type="date" {...register("contentConfirmedOn")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               </div>
             </div>
           </div>
 
           <div className="space-y-2 pt-4 border-t border-slate-200">
             <label className="text-sm font-medium">Additional Internal Notes</label>
-            <textarea {...register("additionalNotes")} rows={3} placeholder="Private notes..." className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-orange resize-none" />
+            <textarea {...register("additionalNotes")} rows={3} placeholder="Private notes..." className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage resize-none" />
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { Loader2, X, AlertTriangle } from "lucide-react";
 type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive";
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-brand-orange text-white hover:bg-brand-orange-hover shadow-sm",
+  primary: "bg-brand-forest text-white hover:bg-brand-forest/90 shadow-sm",
   secondary: "border border-app-border text-text-primary hover:bg-slate-100",
   ghost: "text-text-muted hover:bg-slate-100 hover:text-text-primary",
   destructive: "bg-danger text-white hover:bg-red-700 shadow-sm",

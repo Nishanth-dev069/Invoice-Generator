@@ -20,7 +20,8 @@ export default function FinalCheckPage() {
     queryFn: async () => {
       const res = await fetch("/api/final-check");
       if (!res.ok) throw new Error("Failed to load checklists");
-      return res.json();
+      const json = await res.json();
+      return json.success ? json.data : json;
     },
     staleTime: 10000,
   });
@@ -36,7 +37,7 @@ export default function FinalCheckPage() {
     <div className="h-[calc(100vh-100px)] flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand-navy">Final Check</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-brand-forest">Final Check</h1>
           <p className="text-sm text-slate-500 mt-1">Verify 51-point pre-delivery protocol checkpoints.</p>
         </div>
         
@@ -53,7 +54,7 @@ export default function FinalCheckPage() {
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-10">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-brand-orange animate-spin" />
+              <Loader2 className="w-8 h-8 text-brand-forest animate-spin" />
               <p className="text-sm font-medium text-slate-600">Loading instances...</p>
             </div>
           </div>

@@ -40,7 +40,8 @@ export default function LeadsPage() {
     queryFn: async () => {
       const res = await fetch("/api/users");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
     staleTime: 60000,
   });
@@ -59,7 +60,8 @@ export default function LeadsPage() {
       });
       const res = await fetch(`/api/leads?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch leads");
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
     staleTime: 30000,
   });
@@ -112,12 +114,12 @@ export default function LeadsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand-navy">Leads Pipeline</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-brand-forest">Leads Pipeline</h1>
           <p className="text-sm text-slate-500 mt-1">Manage and track your print inquiries.</p>
         </div>
         <button 
           onClick={() => { setEditingLead(null); setIsModalOpen(true); }}
-          className="inline-flex items-center justify-center rounded-md bg-brand-orange text-white px-4 py-2 text-sm font-medium hover:bg-brand-orange-hover transition-colors shadow-sm"
+          className="inline-flex items-center justify-center rounded-md bg-brand-forest text-white px-4 py-2 text-sm font-medium hover:bg-brand-forest/90 transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Lead
@@ -134,13 +136,13 @@ export default function LeadsPage() {
               placeholder="Search leads by name or desc..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-orange"
+              className="w-full pl-9 pr-4 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-sage"
             />
           </div>
           <select 
             value={assigneeId} 
             onChange={(e) => setAssigneeId(e.target.value)}
-            className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-orange bg-white"
+            className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-sage bg-white"
           >
             <option value="all">All Assignees</option>
             {usersData?.map((u: any) => (
@@ -152,7 +154,7 @@ export default function LeadsPage() {
             <select 
               value={sort} 
               onChange={(e) => setSort(e.target.value)}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-orange bg-white"
+              className="w-full px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-sage bg-white"
             >
               <option value="Newest">Newest First</option>
               <option value="Oldest">Oldest First</option>
@@ -170,7 +172,7 @@ export default function LeadsPage() {
               onClick={() => toggleStatus(s)}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
                 statusFilter.includes(s) 
-                  ? "bg-brand-navy text-white border-brand-navy" 
+                  ? "bg-brand-forest text-white border-brand-forest" 
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100"
               }`}
             >

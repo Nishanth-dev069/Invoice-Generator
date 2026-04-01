@@ -117,7 +117,7 @@ export function AddEditLeadModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-bold text-brand-navy">
+          <h2 className="text-xl font-bold text-brand-forest">
             {lead ? "Edit Lead" : "Add New Lead"}
           </h2>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-full transition-colors">
@@ -129,36 +129,36 @@ export function AddEditLeadModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Customer Name *</label>
-              <input {...register("customerName")} placeholder="John Doe" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm" />
+              <input {...register("customerName")} placeholder="John Doe" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm" />
               {errors.customerName && <p className="text-xs text-red-500">{errors.customerName.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Phone Number *</label>
-              <input {...register("phone")} placeholder="+91 9876543210" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm" />
+              <input {...register("phone")} placeholder="+91 9876543210" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm" />
               {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Category *</label>
-              <input {...register("category")} placeholder="e.g. Wedding Cards, Business Cards" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm" />
+              <input {...register("category")} placeholder="e.g. Wedding Cards, Business Cards" className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm" />
               {errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Quantity *</label>
-              <input type="number" min="1" {...register("quantity")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm" />
+              <input type="number" min="1" {...register("quantity")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm" />
               {errors.quantity && <p className="text-xs text-red-500">{errors.quantity.message}</p>}
             </div>
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">Description *</label>
-              <textarea {...register("description")} rows={2} placeholder="Brief description of the requirement..." className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm resize-none" />
+              <textarea {...register("description")} rows={2} placeholder="Brief description of the requirement..." className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm resize-none" />
               {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Assigned To *</label>
-              <select {...register("assignedToId")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm bg-white">
+              <select {...register("assignedToId")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm bg-white">
                 <option value="">Select Assignee</option>
                 {users?.map((u: any) => (
                   <option key={u.id} value={u.id}>{u.name}</option>
@@ -169,13 +169,13 @@ export function AddEditLeadModal({
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Estimated Bill Value (₹) *</label>
-              <input type="number" step="0.01" min="0" {...register("estimatedBillValue")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm" />
+              <input type="number" step="0.01" min="0" {...register("estimatedBillValue")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm" />
               {errors.estimatedBillValue && <p className="text-xs text-red-500">{errors.estimatedBillValue.message}</p>}
             </div>
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">Status</label>
-              <select {...register("status")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm bg-white">
+              <select {...register("status")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm bg-white">
                 <option value="NEW">New</option>
                 <option value="CONTACTED">Contacted</option>
                 <option value="NEGOTIATING">Negotiating</option>
@@ -186,7 +186,7 @@ export function AddEditLeadModal({
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">Internal Notes</label>
-              <textarea {...register("notes")} rows={3} placeholder="Any private notes regarding this lead..." className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-orange text-sm resize-none" />
+              <textarea {...register("notes")} rows={3} placeholder="Any private notes regarding this lead..." className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm resize-none" />
             </div>
           </div>
 
@@ -201,7 +201,7 @@ export function AddEditLeadModal({
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium bg-brand-orange text-white rounded-md hover:bg-brand-orange-hover transition-colors disabled:opacity-50"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium bg-brand-forest text-white rounded-md hover:bg-brand-forest/90 transition-colors disabled:opacity-50"
             >
               {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {lead ? "Update Lead" : "Create Lead"}
