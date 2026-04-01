@@ -33,7 +33,8 @@ export default function UsersPage() {
     queryFn: async () => {
       const res = await fetch("/api/users");
       if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
+      const json = await res.json();
+      return json.success ? json.data : json;
     },
   });
 
@@ -57,7 +58,7 @@ export default function UsersPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-orange" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand-forest" />
       </div>
     );
   }
@@ -66,12 +67,12 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand-navy">User Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-brand-forest">User Management</h1>
           <p className="text-muted-foreground mt-1">Manage system access and roles.</p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-brand-orange text-white px-4 py-2 text-sm font-medium hover:bg-brand-orange-hover focus:outline-none focus:ring-2 focus:ring-brand-orange focus:ring-offset-2 transition-colors"
+          className="inline-flex items-center justify-center rounded-md bg-brand-forest text-white px-4 py-2 text-sm font-medium hover:bg-brand-forest/90 focus:outline-none focus:ring-2 focus:ring-brand-sage focus:ring-offset-2 transition-colors"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add User
@@ -99,7 +100,7 @@ export default function UsersPage() {
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                         user.role === "ADMIN"
-                          ? "bg-orange-100 text-brand-orange-hover"
+                          ? "bg-orange-100 text-brand-forest/90"
                           : "bg-gray-100 text-gray-800"
                       }`}
                     >

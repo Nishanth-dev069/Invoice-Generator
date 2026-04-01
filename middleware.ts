@@ -10,8 +10,18 @@ export default auth((req: any) => {
   const isLoggedIn = !!req.auth;
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
   const isAuthRoute = nextUrl.pathname === "/login";
+  const isRootRoute = nextUrl.pathname === "/";
   const isProtectedRoute = nextUrl.pathname.startsWith("/dashboard");
+
   if (isApiAuthRoute) return;
+
+  // Root path: redirect immediately without hitting the page component
+  if (isRootRoute) {
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    }
+    return NextResponse.redirect(new URL("/login", nextUrl));
+  }
 
   if (isAuthRoute) {
     if (isLoggedIn) {

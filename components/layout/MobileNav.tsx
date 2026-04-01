@@ -29,10 +29,10 @@ export function MobileNav() {
             key={href}
             href={href}
             className={`flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors ${
-              active ? "text-brand-orange" : "text-text-muted"
+              active ? "text-brand-forest" : "text-text-muted"
             }`}
           >
-            <Icon className={`w-5 h-5 ${active ? "text-brand-orange" : "text-slate-400"}`} />
+            <Icon className={`w-5 h-5 ${active ? "text-brand-forest" : "text-slate-400"}`} />
             {label}
           </Link>
         );

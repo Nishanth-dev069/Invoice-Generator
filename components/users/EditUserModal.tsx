@@ -81,7 +81,7 @@ export function EditUserModal({
             <label className="text-sm font-medium">Name</label>
             <input
               {...register("name")}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sage"
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
@@ -90,7 +90,7 @@ export function EditUserModal({
             <label className="text-sm font-medium">Role</label>
             <select
               {...register("role")}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sage"
             >
               <option value="USER">User (Sales/Staff)</option>
               <option value="ADMIN">Admin</option>
@@ -109,7 +109,7 @@ export function EditUserModal({
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-brand-orange rounded-md hover:bg-brand-orange-hover transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-brand-forest rounded-md hover:bg-brand-forest/90 transition-colors disabled:opacity-50"
             >
               {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Update Details

@@ -32,7 +32,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
           </div>
           <button
             onClick={() => this.setState({ hasError: false })}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-orange text-white rounded-lg text-sm font-semibold hover:bg-brand-orange-hover transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-forest text-white rounded-lg text-sm font-semibold hover:bg-brand-forest/90 transition-colors"
           >
             <RefreshCw className="w-4 h-4" /> Try Again
           </button>
