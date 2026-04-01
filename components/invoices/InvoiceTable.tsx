@@ -108,7 +108,8 @@ export function InvoiceTable({ currentUserRole }: { currentUserRole: string }) {
     queryFn: async () => {
       const res = await fetch("/api/users");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json) ? json : (json.data || []);
     },
     staleTime: 60000,
   });

@@ -34,7 +34,7 @@ export default function UsersPage() {
       const res = await fetch("/api/users");
       if (!res.ok) throw new Error("Failed to fetch users");
       const json = await res.json();
-      return json.success ? json.data : json;
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
   });
 

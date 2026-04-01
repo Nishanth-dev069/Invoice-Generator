@@ -29,7 +29,7 @@ export async function GET(req: Request) {
         customerName: true,
         phone: true,
         totalAmount: true,
-        advance: true,
+        advanceAmount: true,
         balance: true,
         finalDeliveryDate: true,
         assignee: { select: { name: true } },

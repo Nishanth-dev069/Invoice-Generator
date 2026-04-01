@@ -41,7 +41,7 @@ export default function LeadsPage() {
       const res = await fetch("/api/users");
       if (!res.ok) return [];
       const json = await res.json();
-      return json.success ? json.data : json;
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
     staleTime: 60000,
   });
@@ -61,7 +61,7 @@ export default function LeadsPage() {
       const res = await fetch(`/api/leads?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch leads");
       const json = await res.json();
-      return json.success ? json.data : json;
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
     staleTime: 30000,
   });
