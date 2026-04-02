@@ -15,7 +15,7 @@ import { PurchaseDrawer } from "@/components/purchases/PurchaseDrawer";
 // ---- helpers ----
 function fmt(n: any) {
   const num = Number(n ?? 0);
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(num);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(num);
 }
 function fmtPct(n: any) { return `${Number(n ?? 0).toFixed(1)}%`; }
 
@@ -248,10 +248,10 @@ export default function PurchasesPage() {
                 <tr>
                   {/* Sticky columns */}
                   <th className="sticky left-0 z-30 bg-brand-forest px-3 py-3 text-left text-xs font-bold whitespace-nowrap w-10">#</th>
-                  <th className="sticky left-10 z-30 bg-brand-forest px-3 py-3 text-left text-xs font-bold whitespace-nowrap cursor-pointer min-w-[110px]" onClick={() => toggleSort("invoiceNumber")}>
+                  <th className="px-3 py-3 bg-brand-forest text-left text-xs font-bold whitespace-nowrap cursor-pointer min-w-[110px]" onClick={() => toggleSort("invoiceNumber")}>
                     Invoice No <SortIcon field="invoiceNumber" />
                   </th>
-                  <th className="sticky left-[200px] z-30 bg-brand-forest px-3 py-3 text-left text-xs font-bold whitespace-nowrap min-w-[160px]">Customer</th>
+                  <th className="px-3 py-3 bg-brand-forest text-left text-xs font-bold whitespace-nowrap min-w-[160px]">Customer</th>
                   {/* Scrollable columns */}
                   <th className="px-3 py-3 text-left text-xs font-bold whitespace-nowrap">Category</th>
                   <th className="px-3 py-3 text-left text-xs font-bold min-w-[160px]">Description</th>
@@ -279,8 +279,8 @@ export default function PurchasesPage() {
                 {purchases.map((p: any, i: number) => (
                   <tr key={p.id} className="border-b border-brand-border/50 hover:bg-brand-cream/30 transition-colors group">
                     <td className="sticky left-0 z-10 bg-white group-hover:bg-brand-cream/30 px-3 py-2.5 text-xs text-brand-muted">{i + 1}</td>
-                    <td className="sticky left-10 z-10 bg-white group-hover:bg-brand-cream/30 px-3 py-2.5 font-mono font-bold text-xs text-brand-forest">{p.invoiceNumber}</td>
-                    <td className="sticky left-[200px] z-10 bg-white group-hover:bg-brand-cream/30 px-3 py-2.5 font-semibold text-xs max-w-[160px] truncate" title={p.customerName}>{p.customerName}</td>
+                    <td className="px-3 py-2.5 font-mono font-bold text-xs text-brand-forest">{p.invoiceNumber}</td>
+                    <td className="px-3 py-2.5 font-semibold text-xs max-w-[160px] truncate" title={p.customerName}>{p.customerName}</td>
                     <td className="px-3 py-2.5 text-xs">
                       <span className="bg-brand-cream border border-brand-border text-brand-forest px-2 py-0.5 rounded-full text-[10px] font-semibold">{p.category}</span>
                     </td>
@@ -328,7 +328,7 @@ export default function PurchasesPage() {
                 {purchases.length > 0 && (
                   <tr className="bg-brand-forest/5 border-t-2 border-brand-forest/20 font-bold">
                     <td className="sticky left-0 z-10 bg-brand-forest/5 px-3 py-3 text-xs text-brand-forest uppercase tracking-wider" colSpan={2}>TOTALS</td>
-                    <td className="sticky left-[200px] z-10 bg-brand-forest/5 px-3 py-3 text-xs text-brand-muted">{purchases.length} jobs</td>
+                    <td className="px-3 py-3 text-xs text-brand-muted">{purchases.length} jobs</td>
                     <td colSpan={3} className="px-3 py-3"></td>
                     <td className="px-3 py-3 text-xs font-bold text-brand-forest">{fmt(totals.billValue)}</td>
                     <td className="px-3 py-3"></td>

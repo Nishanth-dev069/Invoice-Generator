@@ -17,6 +17,8 @@ import { isValidUUID } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { invoiceCreateSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const session = await auth();
@@ -109,6 +111,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
           designer: data.designer,
           printer: data.printer,
           additionalNotes: data.additionalNotes,
+          contentConfirmedOn: data.contentConfirmedOn ? new Date(data.contentConfirmedOn) : null,
+          finalDeliveryDate: data.finalDeliveryDate ? new Date(data.finalDeliveryDate) : null,
           assigneeId: data.assigneeId || session.user.id,
         },
       });

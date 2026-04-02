@@ -158,7 +158,7 @@ export function ChecklistPopover({ cardId, phase, isHovered }: { cardId: string;
       
       {/* Absolute Popover (Appears on Hover) */}
       <div 
-        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-white rounded-xl shadow-xl border border-brand-border z-50 overflow-hidden transform transition-all duration-200 pointer-events-none opacity-0 translate-y-2 group-hover/popover:pointer-events-auto group-hover/popover:opacity-100 group-hover/popover:translate-y-0`}
+        className={`absolute bottom-full left-0 mb-2 w-72 bg-white rounded-xl shadow-xl border border-brand-border z-50 overflow-hidden transform transition-all duration-200 pointer-events-none opacity-0 translate-y-2 group-hover/popover:pointer-events-auto group-hover/popover:opacity-100 group-hover/popover:translate-y-0`}
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()} // Prevent DND drag intercept
       >

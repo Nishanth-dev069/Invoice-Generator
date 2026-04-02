@@ -11,7 +11,7 @@ const PAYMENT_STATUSES = ["PENDING", "PAID", "PARTIAL"];
 const PAYMENT_MODES = ["ONLINE", "CASH", "UPI", "BANK_TRANSFER"];
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(n);
 }
 
 function toNum(v: any) { return parseFloat(v) || 0; }

@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(n);
 }
 
 const TYPE_STYLES: Record<string, string> = {

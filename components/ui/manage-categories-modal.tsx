@@ -26,8 +26,9 @@ export function ManageCategoriesModal({
     setLoadingCategories(true);
     fetch("/api/invoice-categories")
       .then(res => res.json())
-      .then(data => {
-        setCategories(data);
+      .then(json => {
+        const safeData = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+        setCategories(safeData);
         setLoadingCategories(false);
       });
   };

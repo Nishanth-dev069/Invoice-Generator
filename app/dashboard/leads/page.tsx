@@ -145,7 +145,7 @@ export default function LeadsPage() {
             className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-brand-sage bg-white"
           >
             <option value="all">All Assignees</option>
-            {usersData?.map((u: any) => (
+            {(Array.isArray(usersData) ? usersData : (usersData?.data || [])).map((u: any) => (
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>

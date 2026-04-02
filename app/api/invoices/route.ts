@@ -16,6 +16,8 @@ import { handleApiError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 import { invoiceCreateSchema } from "@/lib/validations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     const session = await auth();
@@ -193,22 +195,13 @@ export async function POST(req: Request) {
         order: 0,
       };
 
-      await Promise.all([
-        (tx as any).wIPCard.create({
-          data: {
-            ...cardBaseParams,
-            phase: "RAW_MATERIALS",
-            checklists: { create: { phase: "RAW_MATERIALS", invoiceId: invoice.id } }
-          }
-        }),
-        (tx as any).wIPCard.create({
-          data: {
-            ...cardBaseParams,
-            phase: "DESIGN",
-            checklists: { create: { phase: "DESIGN", invoiceId: invoice.id } }
-          }
-        })
-      ]);
+      await (tx as any).wIPCard.create({
+        data: {
+          ...cardBaseParams,
+          phase: "RAW_MATERIALS",
+          checklists: { create: { phase: "RAW_MATERIALS", invoiceId: invoice.id } }
+        }
+      });
 
       return { ...invoice, invoiceNumberFormatted: formattedNumber };
     });
