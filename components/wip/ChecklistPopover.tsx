@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckSquare, Square, Loader2, ClipboardCheck, ArrowUpRight } from "lucide-react";
+import { CheckSquare, Square, Loader2, ClipboardCheck, ArrowUpRight, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -82,14 +84,14 @@ const PHASE_NAMES: Record<string, string> = {
   PAYMENT_PENDING: "Payment Pending",
 };
 
-import { useState } from "react";
-import { X } from "lucide-react";
-
-// (Keep the schema and other things below)
-
 export function ChecklistPopover({ cardId, phase }: { cardId: string; phase: string; isHovered?: boolean }) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data: checklist, isLoading } = useQuery({
     queryKey: ["checklist", cardId, phase],
@@ -142,6 +144,98 @@ export function ChecklistPopover({ cardId, phase }: { cardId: string; phase: str
 
   if (totalItems === 0) return null;
 
+  const modalContent = isOpen ? (
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div 
+        className="w-full max-w-sm bg-white rounded-xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] border border-brand-border flex flex-col md:max-h-[85vh] max-h-[80vh] overflow-hidden animate-in zoom-in-95 duration-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-brand-cream/40 p-4 border-b border-brand-border relative">
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="absolute right-3 top-3 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          
+          <div className="pr-6">
+            <h4 className="text-sm font-bold text-brand-forest uppercase tracking-wider flex items-center gap-2 mb-3">
+              <ClipboardCheck className="w-4 h-4 text-brand-sage" />
+              {PHASE_NAMES[phase]}
+            </h4>
+            
+            <div className="flex items-center justify-between gap-3 mb-1">
+              <div className="h-2 w-full bg-brand-border/50 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-500 rounded-full ${isComplete ? 'bg-green-500' : 'bg-brand-sage'}`} 
+                  style={{ width: `${(completedItems / totalItems) * 100}%` }}
+                />
+              </div>
+              <span className="text-[10px] font-bold text-brand-muted shrink-0 w-8 text-right">
+                {fractionText}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {isComplete && (
+          <div className="bg-green-50 px-4 py-2 border-b border-green-100/50 text-green-700 text-xs font-bold flex items-center justify-center shrink-0">
+            All checks securely completed ✓
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-sage/20 bg-white">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10 text-brand-muted">
+              <Loader2 className="w-6 h-6 animate-spin text-brand-sage" />
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {schema.map((item) => {
+                const checked = checklist ? checklist[item.key] === true : false;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={(e) => {
+                      e.preventDefault(); e.stopPropagation();
+                      if (checklist) {
+                        updateMutation.mutate({ id: checklist.id, fieldName: item.key, value: !checked });
+                      }
+                    }}
+                    className="w-full py-2.5 px-3 text-left flex items-start gap-3 hover:bg-brand-cream/50 rounded-lg transition-colors group/btn border border-transparent hover:border-brand-border bg-white"
+                  >
+                    <div className={`mt-0.5 flex-shrink-0 transition-colors ${checked ? 'text-green-500' : 'text-slate-300 group-hover/btn:text-brand-sage'}`}>
+                      {checked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                    </div>
+                    <span className={`text-[13px] leading-snug select-none transition-colors ${checked ? 'text-slate-400 line-through' : 'text-brand-black font-semibold'}`}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-brand-cream/30 p-3 border-t border-brand-border shrink-0">
+          <Link 
+            href={`/dashboard/final-check?invoiceId=${checklist?.invoiceId || ''}`}
+            className="flex items-center justify-center gap-1.5 w-full bg-white border border-brand-border rounded-lg py-2 text-xs font-bold text-brand-forest hover:bg-brand-sage hover:text-white transition-colors"
+            onClick={(e) => e.stopPropagation()}
+            target="_blank"
+          >
+            Open Full Audit Log <ArrowUpRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <>
       <button 
@@ -154,97 +248,7 @@ export function ChecklistPopover({ cardId, phase }: { cardId: string; phase: str
         {fractionText}
       </button>
       
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <div 
-            className="w-full max-w-sm bg-white rounded-xl shadow-2xl border border-brand-border flex flex-col md:max-h-[85vh] max-h-[80vh] overflow-hidden animate-in zoom-in-95 duration-100"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bg-brand-cream/40 p-4 border-b border-brand-border relative">
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="absolute right-3 top-3 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              
-              <div className="pr-6">
-                <h4 className="text-sm font-bold text-brand-forest uppercase tracking-wider flex items-center gap-2 mb-3">
-                  <ClipboardCheck className="w-4 h-4 text-brand-sage" />
-                  {PHASE_NAMES[phase]}
-                </h4>
-                
-                <div className="flex items-center justify-between gap-3 mb-1">
-                  <div className="h-2 w-full bg-brand-border/50 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full transition-all duration-500 rounded-full ${isComplete ? 'bg-green-500' : 'bg-brand-sage'}`} 
-                      style={{ width: `${(completedItems / totalItems) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-brand-muted shrink-0 w-8 text-right">
-                    {fractionText}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {isComplete && (
-              <div className="bg-green-50 px-4 py-2 border-b border-green-100/50 text-green-700 text-xs font-bold flex items-center justify-center shrink-0">
-                All checks securely completed ✓
-              </div>
-            )}
-
-            <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-sage/20">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-10 text-brand-muted">
-                  <Loader2 className="w-6 h-6 animate-spin text-brand-sage" />
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {schema.map((item) => {
-                    const checked = checklist ? checklist[item.key] === true : false;
-                    return (
-                      <button
-                        key={item.key}
-                        onClick={(e) => {
-                          e.preventDefault(); e.stopPropagation();
-                          if (checklist) {
-                            updateMutation.mutate({ id: checklist.id, fieldName: item.key, value: !checked });
-                          }
-                        }}
-                        className="w-full py-2.5 px-3 text-left flex items-start gap-3 hover:bg-brand-cream/50 rounded-lg transition-colors group/btn border border-transparent hover:border-brand-border"
-                      >
-                        <div className={`mt-0.5 flex-shrink-0 transition-colors ${checked ? 'text-green-500' : 'text-slate-300 group-hover/btn:text-brand-sage'}`}>
-                          {checked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
-                        </div>
-                        <span className={`text-[13px] leading-snug select-none transition-colors ${checked ? 'text-slate-400 line-through' : 'text-brand-black font-semibold'}`}>
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="bg-brand-cream/30 p-3 border-t border-brand-border shrink-0">
-              <Link 
-                href={`/dashboard/final-check?invoiceId=${checklist?.invoiceId || ''}`}
-                className="flex items-center justify-center gap-1.5 w-full bg-white border border-brand-border rounded-lg py-2 text-xs font-bold text-brand-forest hover:bg-brand-sage hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                target="_blank"
-              >
-                Open Full Audit Log <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      {mounted ? createPortal(modalContent, document.body) : null}
     </>
   );
 }
