@@ -69,6 +69,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              prefetch={true}
               title={collapsed ? label : undefined}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 active
@@ -91,6 +92,7 @@ export function Sidebar() {
                 <Link
                   key={href}
                   href={href}
+                  prefetch={true}
                   title={collapsed ? label : undefined}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                     active
