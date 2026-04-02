@@ -82,10 +82,15 @@ const PHASE_NAMES: Record<string, string> = {
   PAYMENT_PENDING: "Payment Pending",
 };
 
-export function ChecklistPopover({ cardId, phase, isHovered }: { cardId: string; phase: string; isHovered: boolean }) {
-  const queryClient = useQueryClient();
+import { useState } from "react";
+import { X } from "lucide-react";
 
-  // The GET endpoint reads based on wipCardId because we unified them
+// (Keep the schema and other things below)
+
+export function ChecklistPopover({ cardId, phase }: { cardId: string; phase: string; isHovered?: boolean }) {
+  const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
+
   const { data: checklist, isLoading } = useQuery({
     queryKey: ["checklist", cardId, phase],
     queryFn: async () => {
@@ -98,13 +103,12 @@ export function ChecklistPopover({ cardId, phase, isHovered }: { cardId: string;
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, fieldName, value }: { id: string, fieldName: string, value: boolean }) => {
-      // PATCH endpoint also uses id (the wipChecklist's ID)
       const res = await fetch(`/api/wip-checklist/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fieldName, value })
       });
-      if (!res.ok) throw new Error("Failed to update checklist");
+      if (!res.ok) throw new Error("Failed to update");
     },
     onMutate: async ({ fieldName, value }) => {
       await queryClient.cancelQueries({ queryKey: ["checklist", cardId, phase] });
@@ -117,15 +121,7 @@ export function ChecklistPopover({ cardId, phase, isHovered }: { cardId: string;
       }
       return { previous };
     },
-    onError: (err, vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(["checklist", cardId, phase], context.previous);
-      }
-      toast.error("Failed to update checklist item");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["checklist", cardId, phase] });
-    }
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["checklist", cardId, phase] }),
   });
 
   const schema = CHECKLIST_SCHEMA[phase] || [];
@@ -147,93 +143,108 @@ export function ChecklistPopover({ cardId, phase, isHovered }: { cardId: string;
   if (totalItems === 0) return null;
 
   return (
-    <div className="relative isolate group/popover">
-      <div 
-        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 cursor-help transition-colors select-none ${colorClass}`}
+    <>
+      <button 
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(true); }}
         onPointerDown={(e) => e.stopPropagation()}
+        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 cursor-pointer transition-colors select-none hover:opacity-80 ${colorClass}`}
+        title="Open Checklist"
       >
         <ClipboardCheck className="w-3 h-3" />
         {fractionText}
-      </div>
+      </button>
       
-      {/* Absolute Popover (Appears on Hover) */}
-      <div 
-        className={`absolute bottom-full left-0 mb-2 w-72 bg-white rounded-xl shadow-xl border border-brand-border z-50 overflow-hidden transform transition-all duration-200 pointer-events-none opacity-0 translate-y-2 group-hover/popover:pointer-events-auto group-hover/popover:opacity-100 group-hover/popover:translate-y-0`}
-        onPointerDown={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()} // Prevent DND drag intercept
-      >
-        <div className="bg-brand-cream/40 p-3 border-b border-brand-border">
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="text-xs font-bold text-brand-forest uppercase tracking-wider flex items-center gap-1.5">
-              <ClipboardCheck className="w-4 h-4 text-brand-sage" />
-              {PHASE_NAMES[phase]}
-            </h4>
-            <span className="text-[10px] font-bold text-brand-muted bg-white px-2 py-0.5 rounded-full border border-brand-border">
-              {fractionText}
-            </span>
-          </div>
-          
-          <div className="h-1.5 w-full bg-brand-border/50 rounded-full overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-500 rounded-full ${isComplete ? 'bg-green-500' : 'bg-brand-sage'}`} 
-              style={{ width: `${(completedItems / totalItems) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        {isComplete && (
-          <div className="bg-green-50 px-3 py-1.5 border-b border-green-100/50 text-green-700 text-xs font-bold flex items-center justify-center">
-            All checks done ✓
-          </div>
-        )}
-
-        <div className="max-h-60 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-sage/20">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-6 text-brand-muted">
-              <Loader2 className="w-5 h-5 animate-spin" />
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {schema.map((item) => {
-                const checked = checklist ? checklist[item.key] === true : false;
-                
-                return (
-                  <button
-                    key={item.key}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (checklist) {
-                        updateMutation.mutate({ id: checklist.id, fieldName: item.key, value: !checked });
-                      }
-                    }}
-                    className="w-full text-left flex items-start gap-2 p-1.5 hover:bg-brand-cream/50 rounded transition-colors group/btn"
-                  >
-                    <div className={`mt-0.5 flex-shrink-0 transition-colors ${checked ? 'text-green-500' : 'text-slate-300 group-hover/btn:text-brand-sage'}`}>
-                      {checked ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                    </div>
-                    <span className={`text-[11px] leading-tight select-none transition-colors ${checked ? 'text-slate-400 line-through' : 'text-brand-black font-semibold'}`}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-brand-cream/30 p-2 border-t border-brand-border">
-          <Link 
-            href={`/dashboard/final-check?invoiceId=${checklist?.invoiceId || ''}`}
-            className="w-full flex items-center justify-center gap-1.5 text-xs font-bold text-brand-forest hover:text-brand-sage transition-colors p-1"
-            onPointerDown={(e) => e.stopPropagation()}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="w-full max-w-sm bg-white rounded-xl shadow-2xl border border-brand-border flex flex-col md:max-h-[85vh] max-h-[80vh] overflow-hidden animate-in zoom-in-95 duration-100"
             onClick={(e) => e.stopPropagation()}
-            target="_blank"
           >
-            Full Audit Log <ArrowUpRight className="w-3 h-3" />
-          </Link>
+            <div className="bg-brand-cream/40 p-4 border-b border-brand-border relative">
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="absolute right-3 top-3 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              
+              <div className="pr-6">
+                <h4 className="text-sm font-bold text-brand-forest uppercase tracking-wider flex items-center gap-2 mb-3">
+                  <ClipboardCheck className="w-4 h-4 text-brand-sage" />
+                  {PHASE_NAMES[phase]}
+                </h4>
+                
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="h-2 w-full bg-brand-border/50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-500 rounded-full ${isComplete ? 'bg-green-500' : 'bg-brand-sage'}`} 
+                      style={{ width: `${(completedItems / totalItems) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-brand-muted shrink-0 w-8 text-right">
+                    {fractionText}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {isComplete && (
+              <div className="bg-green-50 px-4 py-2 border-b border-green-100/50 text-green-700 text-xs font-bold flex items-center justify-center shrink-0">
+                All checks securely completed ✓
+              </div>
+            )}
+
+            <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-sage/20">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-10 text-brand-muted">
+                  <Loader2 className="w-6 h-6 animate-spin text-brand-sage" />
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {schema.map((item) => {
+                    const checked = checklist ? checklist[item.key] === true : false;
+                    return (
+                      <button
+                        key={item.key}
+                        onClick={(e) => {
+                          e.preventDefault(); e.stopPropagation();
+                          if (checklist) {
+                            updateMutation.mutate({ id: checklist.id, fieldName: item.key, value: !checked });
+                          }
+                        }}
+                        className="w-full py-2.5 px-3 text-left flex items-start gap-3 hover:bg-brand-cream/50 rounded-lg transition-colors group/btn border border-transparent hover:border-brand-border"
+                      >
+                        <div className={`mt-0.5 flex-shrink-0 transition-colors ${checked ? 'text-green-500' : 'text-slate-300 group-hover/btn:text-brand-sage'}`}>
+                          {checked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                        </div>
+                        <span className={`text-[13px] leading-snug select-none transition-colors ${checked ? 'text-slate-400 line-through' : 'text-brand-black font-semibold'}`}>
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-brand-cream/30 p-3 border-t border-brand-border shrink-0">
+              <Link 
+                href={`/dashboard/final-check?invoiceId=${checklist?.invoiceId || ''}`}
+                className="flex items-center justify-center gap-1.5 w-full bg-white border border-brand-border rounded-lg py-2 text-xs font-bold text-brand-forest hover:bg-brand-sage hover:text-white transition-colors"
+                onClick={(e) => e.stopPropagation()}
+                target="_blank"
+              >
+                Open Full Audit Log <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

@@ -32,80 +32,81 @@ export async function GET(req: Request) {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // Execute queries sequentially to prevent Windows Prisma/Postgres connection pool panic
-    const totalInvoices = await (prisma.invoice as any).count({ where: { deletedAt: null } });
-    const activeInvoices = await (prisma.invoice as any).count({ where: { deletedAt: null, status: "ACTIVE" } });
+    // Execute queries in tightly controlled parallel batches to vastly improve Vercel cold-start latency
+    // while ensuring we don't accidentally exceed Hobby PostgreSQL connection limits (max 15 concurrent)
     
-    const deliveriesThisWeek = await (prisma.invoice as any).count({
-      where: {
-        deletedAt: null,
-        status: "ACTIVE",
-        finalDeliveryDate: { gte: startOfToday, lte: in7Days },
-      },
-    });
+    const [totalInvoices, activeInvoices, deliveriesThisWeek, overdueInvoices] = await Promise.all([
+      (prisma.invoice as any).count({ where: { deletedAt: null } }),
+      (prisma.invoice as any).count({ where: { deletedAt: null, status: "ACTIVE" } }),
+      (prisma.invoice as any).count({
+        where: {
+          deletedAt: null,
+          status: "ACTIVE",
+          finalDeliveryDate: { gte: startOfToday, lte: in7Days },
+        },
+      }),
+      (prisma.invoice as any).count({
+        where: {
+          deletedAt: null,
+          status: "ACTIVE",
+          finalDeliveryDate: { lt: startOfToday },
+        },
+      }),
+    ]);
 
-    const overdueInvoices = await (prisma.invoice as any).count({
-      where: {
-        deletedAt: null,
-        status: "ACTIVE",
-        finalDeliveryDate: { lt: startOfToday },
-      },
-    });
+    const [totalLeads, wipCounts, leadsByStatus] = await Promise.all([
+      (prisma.lead as any).count({ where: { deletedAt: null } }),
+      (prisma.wIPCard as any).groupBy({
+        by: ["phase"],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      (prisma.lead as any).groupBy({
+        by: ["status"],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+    ]);
 
-    const totalLeads = await (prisma.lead as any).count({ where: { deletedAt: null } });
-
-    const wipCounts = await (prisma.wIPCard as any).groupBy({
-      by: ["phase"],
-      where: { deletedAt: null },
-      _count: { _all: true },
-    });
-
-    const urgentDeliveries = await (prisma.invoice as any).findMany({
-      where: {
-        deletedAt: null,
-        status: "ACTIVE",
-        finalDeliveryDate: { gte: startOfToday, lte: in48Hours },
-      },
-      orderBy: { finalDeliveryDate: "asc" },
-      select: {
-        id: true,
-        invoiceNumber: true,
-        customerName: true,
-        finalDeliveryDate: true,
-        assignee: { select: { name: true } },
-      },
-    });
-
-    const recentInvoices = await (prisma.invoice as any).findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      select: {
-        id: true,
-        invoiceNumber: true,
-        customerName: true,
-        totalAmount: true,
-        finalDeliveryDate: true,
-        status: true,
-        assignee: { select: { name: true } },
-      },
-    });
-
-    const leadsByStatus = await (prisma.lead as any).groupBy({
-      by: ["status"],
-      where: { deletedAt: null },
-      _count: { _all: true },
-    });
-
-    const pendingFinalChecks = await (prisma.finalCheck as any).count({ where: { deletedAt: null, isComplete: false } });
-
-    const completedFinalChecksThisMonth = await (prisma.finalCheck as any).count({
-      where: {
-        deletedAt: null,
-        isComplete: true,
-        completedAt: { gte: startOfMonth, lte: endOfMonth },
-      },
-    });
+    const [urgentDeliveries, recentInvoices, pendingFinalChecks, completedFinalChecksThisMonth] = await Promise.all([
+      (prisma.invoice as any).findMany({
+        where: {
+          deletedAt: null,
+          status: "ACTIVE",
+          finalDeliveryDate: { gte: startOfToday, lte: in48Hours },
+        },
+        orderBy: { finalDeliveryDate: "asc" },
+        select: {
+          id: true,
+          invoiceNumber: true,
+          customerName: true,
+          finalDeliveryDate: true,
+          assignee: { select: { name: true } },
+        },
+      }),
+      (prisma.invoice as any).findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: {
+          id: true,
+          invoiceNumber: true,
+          customerName: true,
+          totalAmount: true,
+          finalDeliveryDate: true,
+          status: true,
+          assignee: { select: { name: true } },
+        },
+      }),
+      (prisma.finalCheck as any).count({ where: { deletedAt: null, isComplete: false } }),
+      (prisma.finalCheck as any).count({
+        where: {
+          deletedAt: null,
+          isComplete: true,
+          completedAt: { gte: startOfMonth, lte: endOfMonth },
+        },
+      }),
+    ]);
 
     // Process WIP counts into a flat object
     const wipPhases: Record<string, number> = {
