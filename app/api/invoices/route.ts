@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (getServerSession)
@@ -15,8 +16,6 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { handleApiError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 import { invoiceCreateSchema } from "@/lib/validations";
-
-export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {

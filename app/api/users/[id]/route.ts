@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // SECURITY CHECKLIST:
 // - [x] Authentication (NextAuth auth())
 // - [x] Role-Based Access Control (requireRole ADMIN)

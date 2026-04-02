@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (NextAuth auth())
@@ -13,7 +14,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { handleApiError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60; // cache for 60 seconds
+ // cache for 60 seconds
 
 export async function GET(req: Request) {
   try {

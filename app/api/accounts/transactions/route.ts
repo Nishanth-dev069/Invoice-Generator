@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (NextAuth auth())
@@ -15,8 +16,6 @@ import { handleApiError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
-
-export const dynamic = "force-dynamic";
 
 const transactionSchema = z.object({
   type: z.enum(["CREDIT", "DEBIT"]),
