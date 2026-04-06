@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -5,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { handleApiError } from "@/lib/api-error";
 
-export const revalidate = 300; // 5 minutes cache
+ // 5 minutes cache
 
 export async function GET(req: Request) {
   try {

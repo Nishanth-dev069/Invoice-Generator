@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(n);
 }
 
 function MarkPaidModal({ invoice, onClose, onSaved }: { invoice: any; onClose: () => void; onSaved: () => void }) {
@@ -20,8 +20,7 @@ function MarkPaidModal({ invoice, onClose, onSaved }: { invoice: any; onClose: (
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      // 1. Record Counter Transaction
-      await fetch("/api/accounts/transactions", {
+      const res = await fetch("/api/accounts/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -35,13 +34,7 @@ function MarkPaidModal({ invoice, onClose, onSaved }: { invoice: any; onClose: (
           category: "INVOICE_BALANCE",
         }),
       });
-      // 2. Mark invoice balancePaid = true
-      const res = await fetch(`/api/invoices/${invoice.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ balancePaid: true }),
-      });
-      if (!res.ok) throw new Error("Invoice update failed");
+      if (!res.ok) throw new Error("Payment transaction failed");
       return res.json();
     },
     onSuccess: () => {
@@ -148,7 +141,7 @@ export function ReceivablesTable({ data }: { data: any }) {
                     <td className="px-4 py-2.5 text-xs font-semibold max-w-[140px] truncate" title={inv.customerName}>{inv.customerName}</td>
                     <td className="px-4 py-2.5 text-xs text-brand-muted">{inv.phone || "—"}</td>
                     <td className="px-4 py-2.5 text-right text-xs font-semibold">{fmt(Number(inv.totalAmount))}</td>
-                    <td className="px-4 py-2.5 text-right text-xs text-green-600">{fmt(Number(inv.advance || 0))}</td>
+                    <td className="px-4 py-2.5 text-right text-xs text-green-600">{fmt(Number(inv.advanceAmount || 0))}</td>
                     <td className="px-4 py-2.5 text-right font-bold text-red-600">{fmt(Number(inv.balance || 0))}</td>
                     <td className="px-4 py-2.5 text-xs">
                       {dueDate ? (

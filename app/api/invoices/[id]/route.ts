@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (getServerSession)
@@ -109,6 +110,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
           designer: data.designer,
           printer: data.printer,
           additionalNotes: data.additionalNotes,
+          contentConfirmedOn: data.contentConfirmedOn ? new Date(data.contentConfirmedOn) : null,
+          finalDeliveryDate: data.finalDeliveryDate ? new Date(data.finalDeliveryDate) : null,
           assigneeId: data.assigneeId || session.user.id,
         },
       });

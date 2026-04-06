@@ -43,7 +43,8 @@ export function InvoiceForm({ initialData, invoiceId }: {
     queryFn: async () => {
       const res = await fetch("/api/users");
       if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
   });
 
@@ -97,10 +98,8 @@ export function InvoiceForm({ initialData, invoiceId }: {
     onSuccess: () => {
       toast.success(invoiceId ? "Invoice updated successfully" : "Invoice generated successfully");
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      if (!invoiceId) {
-        router.push("/dashboard/invoices");
-        router.refresh();
-      }
+      router.push("/dashboard/invoices");
+      router.refresh();
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to save invoice.");
@@ -163,7 +162,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Date *</label>
-            <input type="date" {...register("date")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+            <input type="date" {...register("date", { valueAsDate: true })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
             {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
           </div>
 
@@ -225,13 +224,13 @@ export function InvoiceForm({ initialData, invoiceId }: {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Quantity *</label>
-              <input type="number" min="1" {...register("quantity")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+              <input type="number" min="1" {...register("quantity", { valueAsNumber: true })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               <p className="text-xs text-muted-foreground">Effective quantity after 5% tolerance: <span className="font-bold">{toleranceQty}</span> cards</p>
               {errors.quantity && <p className="text-xs text-destructive">{errors.quantity.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Unit Rate (₹) *</label>
-              <input type="number" step="0.01" min="0" {...register("unitRate")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+              <input type="number" step="0.01" min="0" {...register("unitRate", { valueAsNumber: true })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               {errors.unitRate && <p className="text-xs text-destructive">{errors.unitRate.message}</p>}
             </div>
           </div>
@@ -253,7 +252,7 @@ export function InvoiceForm({ initialData, invoiceId }: {
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Advance Amount (₹)</label>
-                  <input type="number" step="0.01" {...register("advanceAmount")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+                  <input type="number" step="0.01" {...register("advanceAmount", { valueAsNumber: true })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Advance Mode</label>
@@ -350,13 +349,13 @@ export function InvoiceForm({ initialData, invoiceId }: {
             <div className="space-y-4 border-l border-slate-200 pl-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Final Delivery Date *</label>
-                <input type="date" {...register("finalDeliveryDate")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+                <input type="date" {...register("finalDeliveryDate", { valueAsDate: true })} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
                 {errors.finalDeliveryDate && <p className="text-xs text-destructive">{errors.finalDeliveryDate.message}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Content Confirmed On</label>
-                <input type="date" {...register("contentConfirmedOn")} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
+                <input type="date" {...register("contentConfirmedOn", { valueAsDate: true })} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand-sage" />
               </div>
             </div>
           </div>

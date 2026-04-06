@@ -77,7 +77,8 @@ export function AddEditLeadModal({
     queryFn: async () => {
       const res = await fetch("/api/users");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json();
+      return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
     },
     enabled: isOpen
   });
@@ -160,7 +161,7 @@ export function AddEditLeadModal({
               <label className="text-sm font-medium">Assigned To *</label>
               <select {...register("assignedToId")} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand-sage text-sm bg-white">
                 <option value="">Select Assignee</option>
-                {users?.map((u: any) => (
+                {(Array.isArray(users) ? users : (users?.data || [])).map((u: any) => (
                   <option key={u.id} value={u.id}>{u.name}</option>
                 ))}
               </select>

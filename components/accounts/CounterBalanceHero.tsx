@@ -7,7 +7,7 @@ import { Plus, Minus, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(n);
 }
 
 const CATEGORIES_CREDIT = ["INVOICE_ADVANCE", "INVOICE_BALANCE", "INVOICE_FULL_PAYMENT", "MISC_INCOME"];

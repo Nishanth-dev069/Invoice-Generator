@@ -14,7 +14,7 @@ import { ReceivablesTable } from "@/components/accounts/ReceivablesTable";
 import { MonthlySalesChart } from "@/components/accounts/MonthlySalesChart";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(n);
 }
 function fmtPct(n: number) { return `${Number(n || 0).toFixed(1)}%`; }
 

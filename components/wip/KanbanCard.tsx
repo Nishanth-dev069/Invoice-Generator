@@ -71,7 +71,7 @@ export function KanbanCard({
       {...listeners}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`bg-white p-3 rounded-lg border shadow-sm relative group cursor-grab active:cursor-grabbing flex flex-col gap-2 ${isOverlay ? 'shadow-xl scale-105 rotate-2' : ''} ${isPaymentPending ? 'border-amber-300' : ''}`}
+      className={`bg-white p-3 rounded-lg border shadow-sm relative group cursor-grab active:cursor-grabbing flex flex-col gap-2 touch-none ${isOverlay ? 'shadow-xl scale-105 rotate-2' : ''} ${isPaymentPending ? 'border-amber-300' : ''}`}
     >
       {isPaymentPending && (
         <div className="absolute -top-2.5 -right-2.5 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-0.5">

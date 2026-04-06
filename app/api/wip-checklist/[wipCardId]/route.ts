@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (getServerSession)
@@ -31,16 +32,24 @@ export async function GET(req: Request, { params }: { params: { wipCardId: strin
     // DB Query uses Prisma ORM which intrinsically prevents SQL injection
     const card = await (prisma as any).wIPCard.findUnique({
       where: { id: wipCardId },
-      select: { phase: true }
+      select: { phase: true, invoiceId: true }
     });
 
     if (!card) return NextResponse.json({ success: false, error: 'Card not found' }, { status: 404 });
 
-    const checklist = await (prisma as any).wIPChecklist.findFirst({
+    let checklist = await (prisma as any).wIPChecklist.findFirst({
       where: { wipCardId, phase: card.phase }
     });
 
-    if (!checklist) return NextResponse.json({ success: false, error: 'Checklist not found' }, { status: 404 });
+    if (!checklist) {
+      checklist = await (prisma as any).wIPChecklist.create({
+        data: {
+          wipCardId,
+          phase: card.phase,
+          invoiceId: card.invoiceId
+        }
+      });
+    }
 
     return NextResponse.json({ success: true, data: checklist });
   } catch (error: unknown) {

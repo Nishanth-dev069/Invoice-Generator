@@ -51,63 +51,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-brand-cream font-sans">
+    <div className="min-h-screen w-full flex bg-brand-forest font-sans relative">
+      {/* Subtle Background Texture */}
+      <div 
+        className="absolute inset-0 z-0 pointer-events-none opacity-5"
+        style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(242,239,230,1) 1px, transparent 0)`,
+          backgroundSize: '24px 24px'
+        }}
+      />
       
-      {/* LEFT PANEL - BRANDING (60%) */}
-      <div className="relative w-full md:w-[60%] bg-brand-forest flex flex-col justify-center items-center overflow-hidden p-8 md:p-12 min-h-[40vh] md:min-h-screen">
-        {/* Subtle Background Texture */}
-        <div 
-          className="absolute inset-0 z-0 pointer-events-none opacity-5"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(242,239,230,1) 1px, transparent 0)`,
-            backgroundSize: '24px 24px'
-          }}
-        />
-        
-        {/* Brand Container */}
-        <div className="z-10 flex flex-col items-center justify-center text-center max-w-lg mt-8 md:mt-0">
-          <svg viewBox="0 0 120 120" fill="none" className="w-24 h-24 md:w-32 md:h-32 mb-6 drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
-            <path d="M95 95 C 95 30, 45 5, 20 5 C 20 60, 60 95, 95 95 Z" fill="#717f65" opacity="0.85"/>
-            <path d="M95 95 C 80 25, 25 10, 5 30 C 25 75, 70 95, 95 95 Z" fill="#5e7150" opacity="0.9"/>
-            <path d="M95 95 C 75 45, 15 35, 5 60 C 35 90, 80 95, 95 95 Z" fill="#48663e"/>
-            <path d="M95 95 C 70 65, 10 70, 5 85 C 40 100, 85 95, 95 95 Z" fill="#32612d"/>
-          </svg>
-          
-          <div className="flex flex-col items-center">
-            {/* Wordmark */}
-            <h1 className="text-5xl md:text-7xl text-brand-cream font-serif tracking-tight mb-1" style={{ fontFamily: 'var(--font-quincy), serif' }}>
-              Ink &amp; Print
-            </h1>
-            <p className="text-lg md:text-xl text-brand-cream/70 font-sans tracking-[0.3em] font-medium" style={{ fontFamily: 'var(--font-quicksand)' }}>
-              STUDIO
-            </p>
-          </div>
-
-          <div className="w-16 h-[1px] bg-brand-sage my-8 opacity-50"></div>
-
-          <p className="text-brand-cream/60 font-sans text-lg md:text-xl font-light" style={{ fontFamily: 'var(--font-quicksand)' }}>
-            Your complete production management system
-          </p>
-        </div>
-
-        {/* Footer Text */}
-        <div className="absolute bottom-6 left-6 md:left-8 z-10">
-          <p className="text-brand-cream/40 font-sans text-sm tracking-wide" style={{ fontFamily: 'var(--font-quicksand)' }}>
-            Crafted for Ink & Print Studio
-          </p>
-        </div>
-      </div>
-
-      {/* RIGHT PANEL - LOGIN FORM (40%) */}
-      <div className="w-full md:w-[40%] bg-brand-cream flex flex-col justify-center items-center p-6 md:p-12">
+      {/* CENTER PANEL - LOGIN FORM */}
+      <div className="w-full flex flex-col justify-center items-center p-6 relative z-10">
         <div 
           className="w-full max-w-md bg-brand-white rounded-2xl p-8 md:p-10"
-          style={{ boxShadow: '0 4px 24px rgba(50,97,45,0.10)' }}
+          style={{ boxShadow: '0 4px 40px rgba(0,0,0,0.3)' }}
         >
-          {/* Logo - enlarged in the form card */}
+          {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="w-56 h-20 relative">
-              <Image src="/logo.png" alt="Ink & Print Studio" fill className="object-contain" />
+              <Image src="/logo.png" alt="Ink & Print Studio" fill className="object-contain" priority />
             </div>
           </div>
 

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (NextAuth auth())
@@ -19,12 +20,12 @@ import { z } from "zod";
 const transactionSchema = z.object({
   type: z.enum(["CREDIT", "DEBIT"]),
   mode: z.enum(["CASH", "ONLINE", "UPI", "BANK_TRANSFER"]),
-  amount: z.number().positive(),
+  amount: z.coerce.number().positive(),
   description: z.string().min(1),
   category: z.string(),
   invoiceId: z.string().uuid().optional(),
-  invoiceNumber: z.string().optional(),
-  date: z.string().datetime().optional()
+  invoiceNumber: z.coerce.string().optional(),
+  date: z.coerce.date().optional()
 });
 
 export async function GET(req: Request) {
@@ -146,6 +147,13 @@ export async function POST(req: Request) {
           date: date ? new Date(date) : new Date(),
         },
       });
+
+      if (category === "INVOICE_BALANCE" && invoiceId) {
+        await (tx as any).invoice.update({
+          where: { id: invoiceId },
+          data: { balancePaid: true, balance: 0 },
+        });
+      }
 
       return txn;
     }, { isolationLevel: "Serializable" });

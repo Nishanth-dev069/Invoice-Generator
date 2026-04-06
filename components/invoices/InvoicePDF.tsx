@@ -1,15 +1,6 @@
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import { format } from "date-fns";
-
-// Register fonts
-Font.register({
-  family: "Quicksand",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/quicksand/v30/6xK-dSZaM9iE8KbpRA_LJ3z8mH9BOJvgkP8o58m-wi40.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/quicksand/v30/6xK-dSZaM9iE8KbpRA_LJ3z8mH9BOJvgkBgv58m-wi40.ttf", fontWeight: "bold" },
-  ]
-});
 
 const styles = StyleSheet.create({
   page: {
@@ -17,7 +8,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingLeft: 50,
     paddingRight: 50,
-    fontFamily: "Quicksand",
+    fontFamily: "Helvetica",
     fontSize: 10,
     color: "#000000",
   },

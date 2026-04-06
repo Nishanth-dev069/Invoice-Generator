@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // SECURITY CHECKLIST:
 // - [x] Authentication (NextAuth auth())
@@ -17,12 +18,12 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
 
 const expenseSchema = z.object({
-  month: z.number().int().min(1).max(12),
-  year: z.number().int(),
+  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int(),
   category: z.enum(["RENT", "SALARY", "ELECTRICITY", "FUEL", "INTERNET", "MISC", "OTHER"]),
-  amount: z.number().positive(),
+  amount: z.coerce.number().positive(),
   description: z.string().optional(),
-  paidOn: z.string().datetime().optional(),
+  paidOn: z.coerce.date().optional(),
   paymentMode: z.enum(["CASH", "ONLINE", "UPI", "BANK_TRANSFER"]).optional()
 });
 

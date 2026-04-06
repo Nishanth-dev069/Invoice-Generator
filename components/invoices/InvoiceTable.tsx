@@ -126,7 +126,7 @@ export function InvoiceTable({ currentUserRole }: { currentUserRole: string }) {
       if (!params.has("order")) params.set("order", "asc");
       if (!params.has("status")) params.set("status", "ACTIVE");
       
-      const res = await fetch(`/api/invoices?${params.toString()}`);
+      const res = await fetch(`/api/invoices?${params.toString()}`, { cache: "no-store", headers: { 'Cache-Control': 'no-cache' } });
       if (!res.ok) throw new Error("Failed to load invoices");
       return res.json();
     },
@@ -185,7 +185,7 @@ export function InvoiceTable({ currentUserRole }: { currentUserRole: string }) {
         </div>
       </div>
 
-      <AdvancedFilterPanel users={usersData || []} />
+      <AdvancedFilterPanel users={Array.isArray(usersData) ? usersData : (usersData?.data || [])} />
 
       {/* Table */}
       <div className="bg-white rounded-lg border border-brand-border shadow-sm overflow-hidden overflow-x-auto">

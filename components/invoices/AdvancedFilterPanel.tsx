@@ -14,7 +14,9 @@ export function AdvancedFilterPanel({ users }: { users: any[] }) {
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
 
   useEffect(() => {
-    fetch("/api/invoice-categories").then(r => r.json()).then(setCategories);
+    fetch("/api/invoice-categories")
+      .then(r => r.json())
+      .then(json => setCategories(Array.isArray(json.data) ? json.data : []));
   }, []);
 
   const updateParam = (key: string, value: string) => {
