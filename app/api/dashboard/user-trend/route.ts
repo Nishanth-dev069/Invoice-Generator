@@ -19,25 +19,55 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
-    const months = parseInt(searchParams.get("months") || "6");
+    const startDateStr = searchParams.get("startDate");
+    const endDateStr = searchParams.get("endDate");
+    
+    // Default to last 6 months if not provided
+    let numMonths = 6;
+    let endDt = new Date();
+    let startDt = new Date(endDt.getFullYear(), endDt.getMonth() - 5, 1);
+    
+    if (startDateStr && endDateStr) {
+      startDt = new Date(startDateStr);
+      endDt = new Date(endDateStr);
+      // set endDt to end of day
+      endDt.setHours(23, 59, 59, 999);
+      
+      const diffMonths = (endDt.getFullYear() - startDt.getFullYear()) * 12 + (endDt.getMonth() - startDt.getMonth()) + 1;
+      numMonths = Math.max(1, diffMonths);
+    }
 
     if (!userId) {
       return NextResponse.json({ success: false, error: "Missing userId parameter" }, { status: 400 });
     }
 
-    const now = new Date();
     const trendData = [];
+    
+    // Also fetch the grand total for the exact requested window
+    const grandTotalStats = await (prisma.invoice as any).aggregate({
+      where: {
+        assigneeId: userId,
+        createdAt: { gte: startDt, lte: endDt },
+        deletedAt: null
+      },
+      _count: { id: true },
+      _sum: { totalAmount: true }
+    });
 
-    // Loop backwards to collect monthly data
-    for (let i = months - 1; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    // Loop backwards to collect monthly data inside the window
+    for (let i = numMonths - 1; i >= 0; i--) {
+      const d = new Date(endDt.getFullYear(), endDt.getMonth() - i, 1);
       const mStart = new Date(d.getFullYear(), d.getMonth(), 1);
       const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      // Clamp within actual requested dates
+      const actualStart = mStart < startDt ? startDt : mStart;
+      const actualEnd = mEnd > endDt ? endDt : mEnd;
 
       const stats: any = await (prisma.invoice as any).aggregate({
         where: {
           assigneeId: userId,
-          createdAt: { gte: mStart, lte: mEnd },
+          createdAt: { gte: actualStart, lte: actualEnd },
           deletedAt: null
         },
         _count: { id: true },
@@ -51,7 +81,16 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, data: trendData });
+    return NextResponse.json({ 
+      success: true, 
+      data: {
+        totals: {
+          invoices: grandTotalStats._count.id || 0,
+          revenue: Number(grandTotalStats._sum.totalAmount || 0)
+        },
+        trend: trendData
+      } 
+    });
   } catch (error: unknown) {
     return handleApiError(error);
   }

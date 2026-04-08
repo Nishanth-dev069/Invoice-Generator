@@ -25,19 +25,32 @@ export async function GET(req: Request) {
     const rateLimitResponse = checkRateLimit(req, session.user.id, 100);
     if (rateLimitResponse) return rateLimitResponse;
 
+    const { searchParams } = new URL(req.url);
+    const monthParam = searchParams.get("month");
+
     const now = new Date();
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
-    const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+    
+    // We fetch all upcoming deliveries, not just 48/24h, because the modal needs to show all
     const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    let startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    let endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    if (monthParam) {
+      const [y, m] = monthParam.split('-');
+      if (y && m) {
+        startOfMonth = new Date(parseInt(y), parseInt(m) - 1, 1);
+        endOfMonth = new Date(parseInt(y), parseInt(m), 0, 23, 59, 59);
+      }
+    }
 
     // Execute queries in tightly controlled parallel batches to vastly improve Vercel cold-start latency
     // while ensuring we don't accidentally exceed Hobby PostgreSQL connection limits (max 15 concurrent)
     
     const [totalInvoices, activeInvoices, deliveriesThisWeek, overdueInvoices] = await Promise.all([
-      (prisma.invoice as any).count({ where: { deletedAt: null } }),
+      (prisma.invoice as any).count({ where: { deletedAt: null, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
       (prisma.invoice as any).count({ where: { deletedAt: null, status: "ACTIVE" } }),
       (prisma.invoice as any).count({
         where: {
@@ -56,7 +69,7 @@ export async function GET(req: Request) {
     ]);
 
     const [totalLeads, wipCounts, leadsByStatus] = await Promise.all([
-      (prisma.lead as any).count({ where: { deletedAt: null } }),
+      (prisma.lead as any).count({ where: { deletedAt: null, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
       (prisma.wIPCard as any).groupBy({
         by: ["phase"],
         where: { deletedAt: null },
@@ -74,13 +87,14 @@ export async function GET(req: Request) {
         where: {
           deletedAt: null,
           status: "ACTIVE",
-          finalDeliveryDate: { gte: startOfToday, lte: in48Hours },
+          finalDeliveryDate: { not: null },
         },
         orderBy: { finalDeliveryDate: "asc" },
         select: {
           id: true,
           invoiceNumber: true,
           customerName: true,
+          totalAmount: true,
           finalDeliveryDate: true,
           assignee: { select: { name: true } },
         },
@@ -96,6 +110,8 @@ export async function GET(req: Request) {
           totalAmount: true,
           finalDeliveryDate: true,
           status: true,
+          balancePaid: true,
+          wipCard: { select: { phase: true } },
           assignee: { select: { name: true } },
         },
       }),

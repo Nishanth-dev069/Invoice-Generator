@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { formatCurrency } from "@/lib/utils";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid,
@@ -13,7 +13,15 @@ export function PerformanceCharts({ teamData }: { teamData: TeamMemberStat[] }) 
   const { data: session } = useSession();
   const [selectedUserId, setSelectedUserId] = useState<string>(session?.user?.id || "");
   const [trendData, setTrendData] = useState<any[]>([]);
+  const [trendTotals, setTrendTotals] = useState<{ invoices: number; revenue: number } | null>(null);
   const [loadingTrend, setLoadingTrend] = useState(false);
+
+  // Date range state for personal trend
+  const now = new Date();
+  const defaultStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
+  const defaultEnd = now.toISOString().slice(0, 10);
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate, setEndDate] = useState(defaultEnd);
 
   // Initialize selected default
   useEffect(() => {
@@ -24,19 +32,25 @@ export function PerformanceCharts({ teamData }: { teamData: TeamMemberStat[] }) 
     }
   }, [session, teamData, selectedUserId]);
 
-  useEffect(() => {
+  const fetchTrend = useCallback(async () => {
     if (!selectedUserId) return;
-    const fetchTrend = async () => {
-      setLoadingTrend(true);
-      try {
-        const res = await fetch(`/api/dashboard/user-trend?userId=${selectedUserId}&months=6`);
-        const json = await res.json();
-        if (json.success) setTrendData(json.data);
-      } catch(e) { console.error(e); }
-      setLoadingTrend(false);
-    };
+    setLoadingTrend(true);
+    try {
+      const url = `/api/dashboard/user-trend?userId=${selectedUserId}&startDate=${startDate}&endDate=${endDate}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.success) {
+        // New API returns { totals, trend }
+        setTrendData(json.data.trend ?? json.data);
+        setTrendTotals(json.data.totals ?? null);
+      }
+    } catch(e) { console.error(e); }
+    setLoadingTrend(false);
+  }, [selectedUserId, startDate, endDate]);
+
+  useEffect(() => {
     fetchTrend();
-  }, [selectedUserId]);
+  }, [fetchTrend]);
 
   // Chart 1: Invoices by Team Member
   const invoiceData = [...teamData].sort((a, b) => b.invoiceCount - a.invoiceCount);
@@ -46,7 +60,7 @@ export function PerformanceCharts({ teamData }: { teamData: TeamMemberStat[] }) 
   const maxRevenue = revenueData.length > 0 ? revenueData[0].revenue : 1;
 
   // Custom tooltips
-  const CustomTolltipInvoices = ({ active, payload }: any) => {
+  const CustomTooltipInvoices = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-card border border-border p-3 rounded-lg shadow-lg text-sm">
@@ -87,8 +101,8 @@ export function PerformanceCharts({ teamData }: { teamData: TeamMemberStat[] }) 
               <BarChart data={invoiceData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                 <XAxis dataKey="name" tick={{fontSize: 12}} tickLine={false} axisLine={false} />
-                <YAxis allowDecimals={false} tick={{fontSize: 12}} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: 'var(--accent)' }} content={<CustomTolltipInvoices />} />
+                <YAxis allowDecimals={false} tick={{fontSize: 12}} tickLine={false} axisLine={false} domain={[0, 'auto']} />
+                <Tooltip cursor={{ fill: 'var(--accent)' }} content={<CustomTooltipInvoices />} />
                 <Bar dataKey="invoiceCount" radius={[6, 6, 0, 0]} maxBarSize={50}>
                   {invoiceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.userId === session?.user?.id ? '#32612d' : '#8ba282'} />
@@ -126,38 +140,68 @@ export function PerformanceCharts({ teamData }: { teamData: TeamMemberStat[] }) 
         </div>
       </div>
 
-      {/* Chart 3: Personal Trend Line */}
+      {/* Chart 3: Personal Trend Line with Date Range */}
       <div className="bg-white rounded-xl border shadow-sm">
-        <div className="p-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-            <h3 className="font-semibold leading-none tracking-tight text-base">Personal 6-Month Trend</h3>
-            <p className="text-sm text-slate-500">Invoices and revenue progression</p>
+        <div className="p-6 pb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col space-y-1.5">
+            <h3 className="font-semibold leading-none tracking-tight text-base">Personal Revenue Trend</h3>
+            <p className="text-sm text-slate-500">
+              Invoices &amp; revenue progression
+              {trendTotals && (
+                <span className="ml-2 font-medium text-slate-700">
+                  — {trendTotals.invoices} invoices · {formatCurrency(trendTotals.revenue)}
+                </span>
+              )}
+            </p>
           </div>
-          <select 
-            value={selectedUserId} 
-            onChange={(e) => setSelectedUserId(e.target.value)}
-            className="w-[200px] h-8 text-xs rounded-md border border-input bg-transparent px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="" disabled>Select team member</option>
-            {teamData.map(u => (
-              <option key={u.userId} value={u.userId}>
-                {u.name} {u.userId === session?.user?.id ? "(You)" : ""}
-              </option>
-            ))}
-          </select>
+          {/* Controls: date range + user selector */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <label className="text-xs text-slate-500 font-medium whitespace-nowrap">From</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="text-xs h-7 rounded-md border border-slate-200 px-2 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <label className="text-xs text-slate-500 font-medium whitespace-nowrap">To</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-xs h-7 rounded-md border border-slate-200 px-2 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+            <select 
+              value={selectedUserId} 
+              onChange={(e) => setSelectedUserId(e.target.value)}
+              className="h-7 text-xs rounded-md border border-slate-200 bg-white px-2 py-1 shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-400"
+            >
+              <option value="" disabled>Select member</option>
+              {teamData.map(u => (
+                <option key={u.userId} value={u.userId}>
+                  {u.name} {u.userId === session?.user?.id ? "(You)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="p-6 h-[280px]">
           {loadingTrend ? (
-            <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse">Loading trend...</div>
+            <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse text-sm">Loading trend...</div>
+          ) : trendData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">No data for selected range.</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
                 <XAxis dataKey="month" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="left" allowDecimals={false} tick={{fontSize: 11}} tickLine={false} axisLine={false} domain={[0, 'auto']} />
                 <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `₹${v/1000}k`} tick={{fontSize: 11}} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: '1px solid var(--border)', fontSize: '12px' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
                   formatter={(value: any, name: any) => [name === 'revenue' ? formatCurrency(Number(value)) : value, name === 'revenue' ? 'Revenue' : 'Invoices']}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
